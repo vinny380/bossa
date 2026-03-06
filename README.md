@@ -7,10 +7,11 @@
     Give your agents <code>ls</code>, <code>read</code>, <code>write</code>, <code>grep</code>, and <code>glob</code> — powered by SQL under the hood.
   </p>
   <p align="center">
-    <a href="#quick-start">Quick Start</a> &middot;
+    <a href="#get-started">Get Started</a> &middot;
     <a href="#mcp-tools">MCP Tools</a> &middot;
     <a href="#rest-api">REST API</a> &middot;
-    <a href="#examples">Examples</a>
+    <a href="#examples">Examples</a> &middot;
+    <a href="docs/README.md">Docs</a>
   </p>
 </p>
 
@@ -37,242 +38,101 @@ Agent  ──MCP──▶  Bossa  ──SQL──▶  Postgres
 
 ---
 
-## Quick Start
+## Get Started
 
-### 1. Start Postgres
+**Use the managed service** — no infrastructure to run.
 
-```bash
-docker compose up -d postgres
-```
+| Step | Action |
+|------|--------|
+| 1 | [Sign up](docs/GETTING_STARTED.md#2-sign-up--log-in) via the CLI |
+| 2 | [Create a workspace & API key](docs/GETTING_STARTED.md#3-create-a-workspace--api-key) |
+| 3 | [Connect your agent](docs/GETTING_STARTED.md#4-make-your-first-request) via MCP or REST |
 
-### 2. Run migrations
+**Base URL:** `https://filesystem-fawn.vercel.app`  
+**MCP endpoint:** `https://filesystem-fawn.vercel.app/mcp`
 
-```bash
-docker compose exec -T postgres psql -U postgres -d bossa \
-  -f - < supabase/migrations/001_initial_schema.sql
+### Documentation
 
-docker compose exec -T postgres psql -U postgres -d bossa \
-  -f - < supabase/migrations/002_workspace_api_keys.sql
-```
-
-### 3. Start the server
-
-```bash
-cp .env.example .env        # DATABASE_URL is pre-configured for local Docker
-# Add ALLOW_DEFAULT_KEY=true to .env for local dev (lets you use sk-default)
-pip install -r requirements.txt
-cd backend
-uvicorn src.main:app --reload
-```
-
-### 4. Seed demo data
-
-```bash
-cd backend && python seed.py
-```
-
-Server is live at `http://localhost:8000`. Health at `/health`, MCP at `/mcp`, REST at `/api/v1`.
-
-### 5. Run tests
-
-```bash
-pytest
-```
+| Doc | Description |
+|-----|-------------|
+| [Getting Started](docs/GETTING_STARTED.md) | Sign up, API key, first request |
+| [MCP Integration](docs/MCP.md) | Claude, Cursor, LangChain setup |
+| [REST API](docs/REST_API.md) | Full API reference |
+| [Agent Integration](docs/AGENT_INTEGRATION.md) | LangChain examples, tool patterns |
+| [Self-Hosting](docs/SELF_HOSTING.md) | Run Bossa on your own infrastructure |
 
 ---
 
-## Deploy To Supabase And Vercel
+## CLI
 
-This is the smallest hosted deployment path for Bossa today. **API keys are required** for all data endpoints (REST and MCP); only `/health` is public.
-
-### 1. Create a Supabase project
-
-Use the project Postgres connection string as `DATABASE_URL`. The app connects directly over Postgres, so no Supabase client setup is required for this first deployment.
-
-### 2. Run migrations on Supabase
-
-Apply all SQL migrations in order:
-
-```bash
-supabase/migrations/001_initial_schema.sql
-supabase/migrations/002_workspace_api_keys.sql
-supabase/migrations/003_workspace_user_ownership.sql
-```
-
-You can run them with the Supabase SQL editor or `psql` against the Supabase Postgres endpoint.
-
-### 3. Set Vercel environment variables
-
-In your Vercel project settings, add:
-
-```bash
-DATABASE_URL=postgres://postgres:[YOUR-PASSWORD]@db.[PROJECT-REF].supabase.co:6543/postgres
-DEFAULT_WORKSPACE_ID=00000000-0000-0000-0000-000000000001
-# REQUIRE_API_KEY=true   # default; enforces API key for all data endpoints
-# ALLOW_DEFAULT_KEY=false  # default; do NOT set true in production (blocks sk-default)
-# Control plane (workspace/key management via CLI):
-# SUPABASE_URL=https://YOUR_PROJECT.supabase.co
-# SUPABASE_JWT_SECRET=your-jwt-secret-from-supabase-dashboard
-```
-
-### 4. Deploy
-
-This repo includes a root `app.py`, `requirements.txt`, and `vercel.json` so Vercel can serve the existing FastAPI app without moving backend code around.
-
-```bash
-vercel
-```
-
-For local Vercel-style verification:
-
-```bash
-vercel dev
-```
-
-### 5. Smoke test the deployment
-
-```bash
-curl https://your-deployment-url.vercel.app/health
-curl -H "Authorization: Bearer YOUR_API_KEY" https://your-deployment-url.vercel.app/api/v1/files/list?path=/
-```
-
-`sk-default` is blocked in production. Create keys with the CLI (see below) or `python backend/scripts/create_workspace.py`.
-
-MCP endpoint: `https://your-deployment-url.vercel.app/mcp` (pass `Authorization: Bearer YOUR_API_KEY` or `X-API-Key: YOUR_API_KEY` in client headers).
-
----
-
-## CLI (User-Managed Keys)
-
-The Bossa CLI lets you log in with Supabase Auth and manage workspaces and API keys.
-
-### Setup
+The Bossa CLI manages accounts, workspaces, and API keys. It defaults to the managed service — no config needed.
 
 ```bash
 pip install -r requirements.txt
-# Or install the package to get the 'bossa' command:
-pip install -e .
+# Or: pip install -e .
 ```
-
-Set environment variables:
 
 ```bash
-export SUPABASE_URL=https://YOUR_PROJECT.supabase.co
-export SUPABASE_ANON_KEY=your-anon-key
-export BOSSA_API_URL=https://your-deployment.vercel.app  # optional; defaults to hosted Bossa
+bossa signup                 # Create account
+bossa login                  # Log in
+bossa workspaces create my-app
+bossa keys create my-app     # Copy the key — shown once
+
+bossa files put ./doc.txt --target /docs
+bossa files upload ./my-docs --target /docs
 ```
 
-### Commands
-
-```bash
-bossa signup                 # Create account (if you don't have one)
-bossa login                  # Log in (email + password)
-bossa whoami                 # Show current user
-bossa logout                 # Clear credentials
-
-bossa workspaces list                    # List your workspaces
-bossa workspaces create my-project       # Create a workspace
-
-bossa keys create my-project            # Create API key (copy it; shown once)
-bossa keys list my-project              # List keys
-bossa keys revoke my-project <key-id>   # Revoke a key
-```
-
-You can also run `python -m cli` instead of `bossa` if you don't install the package.
-
-Enable Supabase Auth (email/password) in your Supabase project. New workspaces are linked to your user; only you can create keys for them.
+See [Getting Started](docs/GETTING_STARTED.md) for full setup.
 
 ---
 
 ## MCP Tools
 
-Bossa exposes **7 tools** via MCP that agents can call directly. Connect with any MCP-compatible client (LangChain, Claude Desktop, ChatGPT, etc.).
+Bossa exposes **7 tools** via MCP. Connect Claude Desktop, Cursor, LangChain, or any MCP client to `https://filesystem-fawn.vercel.app/mcp`.
 
 | Tool | What it does |
-|---|---|
+|------|--------------|
 | **`ls`** | List files and directories at a path. Directories end with `/`. |
 | **`read_file`** | Return file contents with numbered lines (`1: line text`). |
 | **`write_file`** | Create or overwrite a file. |
 | **`edit_file`** | Replace the first occurrence of a substring in a file. |
-| **`grep`** | Search file contents with literal/regex patterns, boolean filters, pagination, and context lines. |
+| **`grep`** | Search file contents with literal/regex patterns, boolean filters, pagination. |
 | **`glob_search`** | Find files by glob pattern (e.g. `**/*.py`). |
 | **`delete_file`** | Permanently delete a file. |
 
-All tools include [MCP annotations](https://modelcontextprotocol.io/specification/2025-06-18/server/tools) (`readOnlyHint`, `destructiveHint`, etc.) so clients can skip confirmation prompts for safe operations.
-
-### `grep` in detail
-
-`grep` is the most powerful tool — it's designed to let agents search without reading entire files:
-
-```
-grep(
-  pattern="Enterprise",           # literal or regex
-  path="/customers/",             # scope to a subtree
-  output_mode="files_with_matches",  # just file paths
-  all_of=["Enterprise", "SSO"],   # AND logic (same line)
-  none_of=["churned"],            # exclude lines
-  context_before=2,               # lines of context
-  max_matches=50,                 # pagination
-)
-```
-
-Three output modes: `matches` (lines + context), `files_with_matches` (paths only), `count`.
+Pass your API key in headers: `Authorization: Bearer YOUR_API_KEY` or `X-API-Key: YOUR_API_KEY`.
 
 ---
 
 ## REST API
 
-All endpoints live under `/api/v1`. Pass workspace API keys via `Authorization: Bearer <key>` or `X-API-Key: <key>`.
+All endpoints under `/api/v1`. Base URL: `https://filesystem-fawn.vercel.app`.
 
 | Method | Endpoint | Description |
-|---|---|---|
-| `POST` | `/api/v1/files` | Create or overwrite a file (`{path, content}`) |
+|--------|----------|-------------|
+| `POST` | `/api/v1/files` | Create or overwrite a file |
+| `POST` | `/api/v1/files/bulk` | Bulk create/overwrite files |
 | `GET` | `/api/v1/files?path=...` | Read a file |
 | `GET` | `/api/v1/files/list?path=...` | List directory contents |
-| `POST` | `/api/v1/files/search` | Grep search (full `GrepSearchRequest` body) |
+| `POST` | `/api/v1/files/search` | Grep search |
 | `DELETE` | `/api/v1/files?path=...` | Delete a file |
 
----
-
-## Workspaces & API Keys
-
-Every file is scoped to a **workspace**. Workspaces are isolated — agents in one workspace cannot see files in another.
-
-- **Default key (dev):** `sk-default` points to the default workspace
-- **No key:** falls back to the default workspace
-- **Invalid key:** returns `401`
-
-Create a new workspace:
-
-```bash
-cd backend && python scripts/create_workspace.py my-workspace
-# → Workspace ID: a1b2c3d4-...
-# → API Key: sk-7f3a...
-```
-
-Pass the key in requests:
-
-```bash
-# REST
-curl -H "Authorization: Bearer sk-7f3a..." http://localhost:8000/api/v1/files/list
-
-# MCP — headers passed at connection time (see examples below)
-```
+Full reference: [docs/REST_API.md](docs/REST_API.md).
 
 ---
 
 ## Examples
 
-### Scripted agent (LangChain + GPT-4o)
-
-The demo agent explores the filesystem, finds Enterprise customers, reads profiles, and writes an analysis:
+### Interactive chat
 
 ```bash
-pip install -r requirements.txt
-cd examples
-cp ../.env.example ../.env   # add your OPENAI_API_KEY
-python agent.py
+export BOSSA_API_URL=https://filesystem-fawn.vercel.app
+export BOSSA_API_KEY=your-api-key
+export OPENAI_API_KEY=sk-...
+python examples/chat.py
 ```
+
+### Scripted agent (LangChain)
 
 ```python
 from langchain_mcp_adapters.client import MultiServerMCPClient
@@ -280,135 +140,24 @@ from langchain.agents import create_agent
 
 client = MultiServerMCPClient({
     "bossa": {
-        "url": "http://localhost:8000/mcp",
-        "transport": "http",
-        "headers": {"Authorization": "Bearer sk-default"},
+        "url": "https://filesystem-fawn.vercel.app/mcp",
+        "transport": "streamable_http",
+        "headers": {
+            "Authorization": "Bearer YOUR_API_KEY",
+            "X-API-Key": "YOUR_API_KEY"
+        }
     }
 })
 tools = await client.get_tools()
 agent = create_agent("openai:gpt-4o", tools)
-
-response = await agent.ainvoke({
-    "messages": [HumanMessage(content="Find all Enterprise customers")]
-})
-```
-
-### Interactive chat
-
-```bash
-python examples/chat.py
-```
-
-```
-You: What files are available?
-Bossa: I found the following structure:
-  customers/
-  docs/
-  memory/
-  tickets/
-...
-
-You: Find all tickets about pricing
-Bossa: Found 1 match in /tickets/2024/march/ticket-001.md ...
+# Use agent.ainvoke(...)
 ```
 
 ---
 
-## Architecture
+## Self-Hosting
 
-```
-┌─────────────┐     ┌─────────────┐
-│  MCP Client │     │ REST Client │
-│ (LangChain, │     │  (curl, app)│
-│  Claude...) │     │             │
-└──────┬──────┘     └──────┬──────┘
-       │ MCP (HTTP)        │ REST
-       ▼                   ▼
-┌──────────────────────────────────┐
-│          FastAPI + FastMCP       │
-│  ┌──────────┐  ┌──────────────┐ │
-│  │ MCP Tools│  │ REST Routes  │ │
-│  └────┬─────┘  └──────┬───────┘ │
-│       └───────┬───────┘         │
-│          ┌────▼─────┐           │
-│          │  Engine   │           │
-│          │(filesystem│           │
-│          │  .py)     │           │
-│          └────┬─────┘           │
-└───────────────┼─────────────────┘
-                │ asyncpg
-       ┌────────▼────────┐
-       │    Postgres      │
-       │ (pg_trgm, GIN,  │
-       │  tsvector, JSONB)│
-       └─────────────────┘
-```
-
-Both MCP and REST share the same engine layer — there's one implementation of each filesystem operation, not two.
-
----
-
-## Project Structure
-
-```
-backend/
-  src/
-    main.py            # FastAPI app, mounts MCP at /mcp
-    config.py           # Env-based settings (DATABASE_URL, etc.)
-    db.py               # asyncpg connection pool
-    auth.py             # API key → workspace resolution
-    models.py           # Pydantic request/response models
-    api/                # REST endpoints
-    engine/             # Filesystem operations (the actual logic)
-    mcp/                # MCP tool definitions
-  seed.py              # Populate demo data
-  scripts/
-    create_workspace.py # Create workspace + API key
-
-examples/
-  agent.py             # Scripted demo agent
-  chat.py              # Interactive chat
-
-supabase/migrations/   # SQL migrations (001, 002, ...)
-tests/                 # pytest (async, real Postgres)
-```
-
----
-
-## Testing
-
-Tests run against a real Postgres instance — no mocks for the database layer.
-
-```bash
-# All tests
-pytest
-
-# Verbose, single file
-pytest tests/test_filesystem.py -v
-```
-
-Test coverage includes:
-- **Engine:** all filesystem operations, grep with regex/boolean/pagination/context, glob, edit
-- **REST API:** CRUD, search, auth (401 for bad keys)
-- **MCP tools:** tool invocation via FastMCP test client
-- **Integration:** write via REST, read via MCP (and vice versa)
-- **Auth:** key resolution, default fallback, invalid key rejection
-
----
-
-## Configuration
-
-### `/.env`
-
-| Variable | Description | Default |
-|---|---|---|
-| `DATABASE_URL` | Postgres connection string | _(required)_ |
-| `DEFAULT_WORKSPACE_ID` | Fallback workspace when no API key is provided | `00000000-0000-0000-0000-000000000001` |
-| `OPENAI_API_KEY` | OpenAI API key for the example agents | _(required for examples)_ |
-| `BOSSA_API_KEY` | Bossa workspace API key | `sk-default` |
-| `BOSSA_URL` | Bossa MCP server URL | `http://localhost:8000/mcp` |
-| `SUPABASE_URL` | Supabase project URL (for CLI) | _(required for CLI)_ |
-| `SUPABASE_ANON_KEY` | Supabase anon key (for CLI) | _(required for CLI)_ |
+Want to run Bossa on your own infrastructure? See [docs/SELF_HOSTING.md](docs/SELF_HOSTING.md) for local Docker setup and Supabase + Vercel deployment.
 
 ---
 

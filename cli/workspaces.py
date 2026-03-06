@@ -34,7 +34,9 @@ def list_workspaces() -> None:
         raise typer.Exit(1)
     data = resp.json()
     if not data:
-        console.print("[dim]No workspaces. Create one with 'bossa workspaces create <name>'[/dim]")
+        console.print(
+            "[dim]No workspaces. Create one with 'bossa workspaces create <name>'[/dim]"
+        )
         return
     table = Table(title="Workspaces")
     table.add_column("ID", style="dim")
@@ -58,4 +60,6 @@ def create_workspace(name: str = typer.Argument(..., help="Workspace name")) -> 
         console.print(f"[red]Error: {resp.status_code} {resp.text}[/red]")
         raise typer.Exit(1)
     data = resp.json()
-    console.print(f"[green]Created workspace '{data['name']}' (id: {data['id']})[/green]")
+    console.print(
+        f"[green]Created workspace '{data['name']}' (id: {data['id']})[/green]"
+    )

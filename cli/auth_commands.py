@@ -1,31 +1,55 @@
 """Auth commands: login, logout, whoami."""
 
 import typer
+import httpx
 from rich.console import Console
 
 from cli.auth import clear_credentials, get_access_token, save_credentials
-from cli.config import SUPABASE_ANON_KEY, SUPABASE_URL
+from cli.config import BOSSA_API_URL, SUPABASE_ANON_KEY, SUPABASE_URL
 
 console = Console()
 
 
-def _require_supabase_config() -> None:
-    if not SUPABASE_URL or not SUPABASE_ANON_KEY:
+def _get_supabase_config() -> tuple[str, str]:
+    """Return (supabase_url, supabase_anon_key). Fetches from API when using managed service."""
+    if SUPABASE_URL and SUPABASE_ANON_KEY:
+        return SUPABASE_URL, SUPABASE_ANON_KEY
+    if "localhost" in BOSSA_API_URL:
         console.print(
-            "[red]Set SUPABASE_URL and SUPABASE_ANON_KEY in your environment.[/red]"
+            "[red]Set SUPABASE_URL and SUPABASE_ANON_KEY for self-hosted. "
+            "Or use BOSSA_API_URL=https://filesystem-fawn.vercel.app for the managed service.[/red]"
         )
         raise typer.Exit(1)
+    try:
+        resp = httpx.get(f"{BOSSA_API_URL.rstrip('/')}/auth/config", timeout=10)
+        if resp.status_code != 200:
+            console.print(
+                "[red]Could not fetch auth config from Bossa. "
+                "Set SUPABASE_URL and SUPABASE_ANON_KEY manually.[/red]"
+            )
+            raise typer.Exit(1)
+        data = resp.json()
+        return data["supabase_url"], data["supabase_anon_key"]
+    except Exception as e:
+        console.print(f"[red]Could not reach Bossa: {e}[/red]")
+        raise typer.Exit(1)
+
+
+def _require_supabase_config() -> tuple[str, str]:
+    return _get_supabase_config()
 
 
 def signup(
     email: str = typer.Option(..., prompt=True, help="Email address"),
-    password: str = typer.Option(..., prompt=True, hide_input=True, help="Password (min 6 chars)"),
+    password: str = typer.Option(
+        ..., prompt=True, hide_input=True, help="Password (min 6 chars)"
+    ),
 ) -> None:
     """Create an account with Supabase Auth (email + password)."""
-    _require_supabase_config()
+    supabase_url, supabase_anon_key = _require_supabase_config()
     from supabase import create_client
 
-    client = create_client(SUPABASE_URL, SUPABASE_ANON_KEY)
+    client = create_client(supabase_url, supabase_anon_key)
     try:
         response = client.auth.sign_up({"email": email, "password": password})
     except Exception as e:
@@ -39,7 +63,9 @@ def signup(
                 refresh_token=response.session.refresh_token or "",
                 expires_at=response.session.expires_at,
             )
-            console.print("[green]Logged in. You can now use workspaces and keys commands.[/green]")
+            console.print(
+                "[green]Logged in. You can now use workspaces and keys commands.[/green]"
+            )
         else:
             console.print(
                 "[yellow]Check your email to confirm. Then run 'bossa login'.[/yellow]"
@@ -54,12 +80,14 @@ def login(
     password: str = typer.Option(..., prompt=True, hide_input=True, help="Password"),
 ) -> None:
     """Log in with Supabase Auth (email + password)."""
-    _require_supabase_config()
+    supabase_url, supabase_anon_key = _require_supabase_config()
     from supabase import create_client
 
-    client = create_client(SUPABASE_URL, SUPABASE_ANON_KEY)
+    client = create_client(supabase_url, supabase_anon_key)
     try:
-        response = client.auth.sign_in_with_password({"email": email, "password": password})
+        response = client.auth.sign_in_with_password(
+            {"email": email, "password": password}
+        )
     except Exception as e:
         console.print(f"[red]Login failed: {e}[/red]")
         raise typer.Exit(1)
@@ -92,6 +120,7 @@ def whoami() -> None:
     # Decode JWT to get email (no verification needed for display)
     import base64
     import json
+
     parts = token.split(".")
     if len(parts) < 2:
         console.print("[red]Invalid token[/red]")

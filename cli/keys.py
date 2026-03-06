@@ -57,7 +57,9 @@ def create_key(
         console.print(f"[red]Error: {resp.status_code} {resp.text}[/red]")
         raise typer.Exit(1)
     data = resp.json()
-    console.print("[yellow]API key created. Copy it now; it won't be shown again:[/yellow]")
+    console.print(
+        "[yellow]API key created. Copy it now; it won't be shown again:[/yellow]"
+    )
     console.print(f"[bold]{data['key']}[/bold]")
 
 
