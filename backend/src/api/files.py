@@ -87,9 +87,7 @@ async def edit_file_endpoint(
     body: FileEdit, workspace_id: str = Depends(get_workspace_id)
 ) -> dict:
     """Replace first occurrence of old_string with new_string."""
-    msg = await fs.edit_file(
-        workspace_id, body.path, body.old_string, body.new_string
-    )
+    msg = await fs.edit_file(workspace_id, body.path, body.old_string, body.new_string)
     if msg.startswith("Error:"):
         raise HTTPException(status_code=404, detail=msg)
     return {"path": body.path, "edited": True}

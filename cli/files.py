@@ -41,7 +41,9 @@ def _json_mode(json_flag: bool) -> bool:
     return os.environ.get("BOSSA_CLI_JSON", "").strip() in ("1", "true", "yes")
 
 
-def _handle_response(resp: httpx.Response, exit_401: int = 2, exit_error: int = 1) -> None:
+def _handle_response(
+    resp: httpx.Response, exit_401: int = 2, exit_error: int = 1
+) -> None:
     """Print error and exit on failure. 401 -> exit_401, else -> exit_error."""
     if resp.status_code == 401:
         console.print("[red]Unauthorized. Check BOSSA_API_KEY or --key.[/red]")
@@ -116,7 +118,9 @@ def delete_cmd(
 @files_app.command("write")
 def write_cmd(
     path: str = typer.Argument(..., help="File path to write"),
-    content: str = typer.Option(None, "--content", "-c", help="Content (or read from stdin)"),
+    content: str = typer.Option(
+        None, "--content", "-c", help="Content (or read from stdin)"
+    ),
     json_output: bool = typer.Option(False, "--json", "-j", help="Output as JSON"),
     key: str = typer.Option(None, "--key", "-k", help="API key (or BOSSA_API_KEY)"),
 ) -> None:
@@ -143,9 +147,13 @@ def grep_cmd(
     pattern: str = typer.Argument(..., help="Pattern to search for"),
     path: str = typer.Option("/", "--path", "-p", help="Directory to scope search"),
     regex: bool = typer.Option(False, "--regex", help="Treat pattern as regex"),
-    case_sensitive: bool = typer.Option(False, "--case-sensitive", help="Case-sensitive match"),
+    case_sensitive: bool = typer.Option(
+        False, "--case-sensitive", help="Case-sensitive match"
+    ),
     output_mode: str = typer.Option(
-        "matches", "--output-mode", "-o",
+        "matches",
+        "--output-mode",
+        "-o",
         help="matches | files_with_matches | count",
     ),
     max_matches: int = typer.Option(100, "--max-matches", help="Max results"),

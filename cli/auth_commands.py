@@ -1,7 +1,7 @@
 """Auth commands: login, logout, whoami."""
 
-import typer
 import httpx
+import typer
 from rich.console import Console
 
 from cli.auth import clear_credentials, get_access_token, save_credentials

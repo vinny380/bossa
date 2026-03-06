@@ -157,7 +157,10 @@ def test_files_write_from_stdin(mock_bossa_url) -> None:
     """bossa files write reads content from stdin."""
     mock_response = MagicMock()
     mock_response.status_code = 200
-    mock_response.json.return_value = {"path": "/test/stdin.txt", "content": "from stdin"}
+    mock_response.json.return_value = {
+        "path": "/test/stdin.txt",
+        "content": "from stdin",
+    }
     mock_client = MagicMock()
     mock_client.post.return_value = mock_response
     mock_client.__enter__ = MagicMock(return_value=mock_client)
@@ -185,9 +188,7 @@ def test_files_write_from_content(mock_bossa_url) -> None:
     mock_client.__exit__ = MagicMock(return_value=None)
 
     with patch("cli.files.httpx.Client", return_value=mock_client):
-        result = runner.invoke(
-            app, ["files", "write", "/x.txt", "--content", "hello"]
-        )
+        result = runner.invoke(app, ["files", "write", "/x.txt", "--content", "hello"])
     assert result.exit_code == 0
     call_json = mock_client.post.call_args[1]["json"]
     assert call_json["content"] == "hello"
