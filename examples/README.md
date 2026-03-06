@@ -6,7 +6,7 @@ A LangChain agent that connects to the Bossa MCP server and performs context dis
 
 1. Bossa backend running: `cd backend && uvicorn src.main:app --reload`
 2. Seed data: `cd backend && python seed.py`
-3. Anthropic API key
+3. OpenAI API key
 
 ## Setup
 
@@ -18,6 +18,14 @@ cp .env.example .env
 ```
 
 ## Run
+
+**Interactive chat** (recommended):
+
+```bash
+python chat.py
+```
+
+**Demo script** (runs predefined queries):
 
 ```bash
 python agent.py

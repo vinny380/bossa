@@ -1,5 +1,6 @@
 """LangChain agent that connects to Bossa MCP server and does context discovery."""
 import asyncio
+import os
 
 from dotenv import load_dotenv
 
@@ -10,11 +11,18 @@ from langchain_mcp_adapters.client import MultiServerMCPClient
 from langchain.agents import create_agent
 
 
+def _bossa_headers() -> dict[str, str]:
+    """Headers for Bossa MCP (API key for workspace)."""
+    key = os.environ.get("BOSSA_API_KEY", "sk-default")
+    return {"Authorization": f"Bearer {key}"}
+
+
 async def main() -> None:
     client = MultiServerMCPClient({
         "bossa": {
             "url": "http://localhost:8000/mcp",
             "transport": "http",
+            "headers": _bossa_headers(),
         }
     })
     tools = await client.get_tools()
