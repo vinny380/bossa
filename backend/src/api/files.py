@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from src.dependencies import get_workspace_id
 from src.engine import filesystem as fs
-from src.models import FileBulkCreate, FileCreate, GrepSearchRequest
+from src.models import FileBulkCreate, FileCreate, FileEdit, GrepSearchRequest
 
 router = APIRouter(prefix="/files", tags=["files"])
 
@@ -48,6 +48,16 @@ async def list_files(
     return {"items": entries}
 
 
+@router.get("/glob")
+async def glob_files(
+    pattern: str, path: str = "/", workspace_id: str = Depends(get_workspace_id)
+) -> dict:
+    """Find files matching glob pattern."""
+    result = await fs.glob_search(workspace_id, pattern, path)
+    items = [line for line in result.split("\n") if line.strip()]
+    return {"paths": items}
+
+
 @router.post("/search")
 async def search_files(
     body: GrepSearchRequest, workspace_id: str = Depends(get_workspace_id)
@@ -70,6 +80,19 @@ async def search_files(
         context_after=body.context_after,
     )
     return result.model_dump()
+
+
+@router.patch("")
+async def edit_file_endpoint(
+    body: FileEdit, workspace_id: str = Depends(get_workspace_id)
+) -> dict:
+    """Replace first occurrence of old_string with new_string."""
+    msg = await fs.edit_file(
+        workspace_id, body.path, body.old_string, body.new_string
+    )
+    if msg.startswith("Error:"):
+        raise HTTPException(status_code=404, detail=msg)
+    return {"path": body.path, "edited": True}
 
 
 @router.delete("")

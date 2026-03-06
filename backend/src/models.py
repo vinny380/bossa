@@ -8,6 +8,12 @@ class FileCreate(BaseModel):
     content: str
 
 
+class FileEdit(BaseModel):
+    path: str
+    old_string: str
+    new_string: str
+
+
 class FileBulkCreate(BaseModel):
     files: list[FileCreate]
 

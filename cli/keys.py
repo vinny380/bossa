@@ -6,7 +6,7 @@ from rich.console import Console
 from rich.table import Table
 
 from cli.auth import get_access_token
-from cli.config import BOSSA_API_URL
+from cli.config import BOSSA_API_URL, BOSSA_TIMEOUT
 
 console = Console()
 keys_app = typer.Typer(help="Manage API keys")
@@ -24,7 +24,7 @@ def _resolve_workspace_id(token: str, workspace: str) -> str:
     """Resolve workspace name to ID, or return as-is if already UUID."""
     if len(workspace) == 36 and workspace.count("-") == 4:
         return workspace
-    with httpx.Client() as client:
+    with httpx.Client(timeout=BOSSA_TIMEOUT) as client:
         resp = client.get(
             f"{BOSSA_API_URL.rstrip('/')}/api/v1/workspaces",
             headers={"Authorization": f"Bearer {token}"},
@@ -47,7 +47,7 @@ def create_key(
     """Create an API key. Copy it now; it won't be shown again."""
     token = _require_auth()
     workspace_id = _resolve_workspace_id(token, workspace)
-    with httpx.Client() as client:
+    with httpx.Client(timeout=BOSSA_TIMEOUT) as client:
         resp = client.post(
             f"{BOSSA_API_URL.rstrip('/')}/api/v1/workspaces/{workspace_id}/keys",
             headers={"Authorization": f"Bearer {token}"},
@@ -70,7 +70,7 @@ def list_keys(
     """List API keys for a workspace."""
     token = _require_auth()
     workspace_id = _resolve_workspace_id(token, workspace)
-    with httpx.Client() as client:
+    with httpx.Client(timeout=BOSSA_TIMEOUT) as client:
         resp = client.get(
             f"{BOSSA_API_URL.rstrip('/')}/api/v1/workspaces/{workspace_id}/keys",
             headers={"Authorization": f"Bearer {token}"},
@@ -99,7 +99,7 @@ def revoke_key(
     """Revoke an API key."""
     token = _require_auth()
     workspace_id = _resolve_workspace_id(token, workspace)
-    with httpx.Client() as client:
+    with httpx.Client(timeout=BOSSA_TIMEOUT) as client:
         resp = client.delete(
             f"{BOSSA_API_URL.rstrip('/')}/api/v1/workspaces/{workspace_id}/keys/{key_id}",
             headers={"Authorization": f"Bearer {token}"},
