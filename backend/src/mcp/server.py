@@ -1,19 +1,47 @@
 from typing import Annotated, Literal
 
+import logging
+
 from fastmcp import FastMCP
 from fastmcp.dependencies import CurrentHeaders
 from pydantic import Field
+
 from src.auth import resolve_workspace_id
 from src.engine import filesystem as fs
+from src.mcp.request_context import get_headers_from_captured_request
+
+logger = logging.getLogger(__name__)
 
 mcp = FastMCP("Bossa")
 
 
 def _extract_api_key(headers: dict[str, str]) -> str | None:
-    """Extract API key from Authorization or X-API-Key header."""
-    api_key = headers.get("x-api-key")
+    """Extract API key from Authorization or X-API-Key header.
+
+    Uses headers from CurrentHeaders when available. Falls back to the request
+    captured at connection time for streamable HTTP, where CurrentHeaders can
+    be empty during tool execution.
+    """
+    if not headers:
+        headers = get_headers_from_captured_request()
+    if not headers:
+        logger.info("mcp._extract_api_key: no_headers")
+        return None
+
+    # HTTP headers are case-insensitive; normalize once.
+    normalized = {str(k).lower(): str(v) for k, v in headers.items()}
+
+    # Log header presence without leaking secrets.
+    logger.info(
+        "mcp._extract_api_key: header_keys=%s has_authorization=%s has_x_api_key=%s",
+        sorted(normalized.keys()),
+        "authorization" in normalized,
+        "x-api-key" in normalized,
+    )
+
+    api_key = normalized.get("x-api-key")
     if not api_key:
-        auth = headers.get("authorization", "")
+        auth = normalized.get("authorization", "")
         if auth.startswith("Bearer "):
             api_key = auth[7:].strip()
     return api_key or None

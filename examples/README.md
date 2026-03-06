@@ -12,9 +12,9 @@ A LangChain agent that connects to the Bossa MCP server and performs context dis
 
 ```bash
 cd examples
-pip install -r requirements.txt
-cp .env.example .env
-# Edit .env and add your OPENAI_API_KEY
+pip install -r ../requirements.txt
+cd .. && cp .env.example .env
+# Edit .env in repo root and add your OPENAI_API_KEY
 ```
 
 ## Run

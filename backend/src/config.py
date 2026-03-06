@@ -1,9 +1,12 @@
+from pathlib import Path
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    _repo_root = Path(__file__).resolve().parents[2]
     model_config = SettingsConfigDict(
-        env_file=(".env", "backend/.env"),
+        env_file=(_repo_root / ".env",),
         env_file_encoding="utf-8",
         extra="ignore",
     )
@@ -13,6 +16,8 @@ class Settings(BaseSettings):
     allow_default_key: bool = (
         False  # True allows sk-default (local/test only); block in prod
     )
+    supabase_url: str | None = None  # For JWT validation (control plane)
+    supabase_jwt_secret: str | None = None  # JWT secret from Supabase project settings
 
 
 settings = Settings()

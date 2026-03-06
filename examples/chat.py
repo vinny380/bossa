@@ -2,10 +2,11 @@
 
 import asyncio
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
 from langchain.agents import create_agent
 from langchain_core.messages import HumanMessage
@@ -15,7 +16,7 @@ from langchain_mcp_adapters.client import MultiServerMCPClient
 def _bossa_headers() -> dict[str, str]:
     """Headers for Bossa MCP (API key for workspace)."""
     key = os.environ.get("BOSSA_API_KEY", "sk-default")
-    return {"Authorization": f"Bearer {key}"}
+    return {"X-API-Key": key, "Authorization": f"Bearer {key}"}
 
 
 async def main() -> None:

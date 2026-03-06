@@ -58,10 +58,10 @@ docker compose exec -T postgres psql -U postgres -d bossa \
 ### 3. Start the server
 
 ```bash
-cd backend
 cp .env.example .env        # DATABASE_URL is pre-configured for local Docker
 # Add ALLOW_DEFAULT_KEY=true to .env for local dev (lets you use sk-default)
 pip install -r requirements.txt
+cd backend
 uvicorn src.main:app --reload
 ```
 
@@ -91,11 +91,12 @@ Use the project Postgres connection string as `DATABASE_URL`. The app connects d
 
 ### 2. Run migrations on Supabase
 
-Apply both SQL files in order:
+Apply all SQL migrations in order:
 
 ```bash
 supabase/migrations/001_initial_schema.sql
 supabase/migrations/002_workspace_api_keys.sql
+supabase/migrations/003_workspace_user_ownership.sql
 ```
 
 You can run them with the Supabase SQL editor or `psql` against the Supabase Postgres endpoint.
@@ -109,6 +110,9 @@ DATABASE_URL=postgres://postgres:[YOUR-PASSWORD]@db.[PROJECT-REF].supabase.co:65
 DEFAULT_WORKSPACE_ID=00000000-0000-0000-0000-000000000001
 # REQUIRE_API_KEY=true   # default; enforces API key for all data endpoints
 # ALLOW_DEFAULT_KEY=false  # default; do NOT set true in production (blocks sk-default)
+# Control plane (workspace/key management via CLI):
+# SUPABASE_URL=https://YOUR_PROJECT.supabase.co
+# SUPABASE_JWT_SECRET=your-jwt-secret-from-supabase-dashboard
 ```
 
 ### 4. Deploy
@@ -132,9 +136,51 @@ curl https://your-deployment-url.vercel.app/health
 curl -H "Authorization: Bearer YOUR_API_KEY" https://your-deployment-url.vercel.app/api/v1/files/list?path=/
 ```
 
-`sk-default` is blocked in production. Create keys with `python backend/scripts/create_workspace.py` and use those for API access.
+`sk-default` is blocked in production. Create keys with the CLI (see below) or `python backend/scripts/create_workspace.py`.
 
 MCP endpoint: `https://your-deployment-url.vercel.app/mcp` (pass `Authorization: Bearer YOUR_API_KEY` or `X-API-Key: YOUR_API_KEY` in client headers).
+
+---
+
+## CLI (User-Managed Keys)
+
+The Bossa CLI lets you log in with Supabase Auth and manage workspaces and API keys.
+
+### Setup
+
+```bash
+pip install -r requirements.txt
+# Or install the package to get the 'bossa' command:
+pip install -e .
+```
+
+Set environment variables:
+
+```bash
+export SUPABASE_URL=https://YOUR_PROJECT.supabase.co
+export SUPABASE_ANON_KEY=your-anon-key
+export BOSSA_API_URL=https://your-deployment.vercel.app  # optional; defaults to hosted Bossa
+```
+
+### Commands
+
+```bash
+bossa signup                 # Create account (if you don't have one)
+bossa login                  # Log in (email + password)
+bossa whoami                 # Show current user
+bossa logout                 # Clear credentials
+
+bossa workspaces list                    # List your workspaces
+bossa workspaces create my-project       # Create a workspace
+
+bossa keys create my-project            # Create API key (copy it; shown once)
+bossa keys list my-project              # List keys
+bossa keys revoke my-project <key-id>   # Revoke a key
+```
+
+You can also run `python -m cli` instead of `bossa` if you don't install the package.
+
+Enable Supabase Auth (email/password) in your Supabase project. New workspaces are linked to your user; only you can create keys for them.
 
 ---
 
@@ -222,9 +268,9 @@ curl -H "Authorization: Bearer sk-7f3a..." http://localhost:8000/api/v1/files/li
 The demo agent explores the filesystem, finds Enterprise customers, reads profiles, and writes an analysis:
 
 ```bash
-cd examples
 pip install -r requirements.txt
-cp .env.example .env   # add your OPENAI_API_KEY
+cd examples
+cp ../.env.example ../.env   # add your OPENAI_API_KEY
 python agent.py
 ```
 
@@ -352,19 +398,17 @@ Test coverage includes:
 
 ## Configuration
 
-### `backend/.env`
+### `/.env`
 
 | Variable | Description | Default |
 |---|---|---|
 | `DATABASE_URL` | Postgres connection string | _(required)_ |
 | `DEFAULT_WORKSPACE_ID` | Fallback workspace when no API key is provided | `00000000-0000-0000-0000-000000000001` |
-
-### `examples/.env`
-
-| Variable | Description | Default |
-|---|---|---|
-| `OPENAI_API_KEY` | OpenAI API key for the example agents | _(required)_ |
+| `OPENAI_API_KEY` | OpenAI API key for the example agents | _(required for examples)_ |
 | `BOSSA_API_KEY` | Bossa workspace API key | `sk-default` |
+| `BOSSA_URL` | Bossa MCP server URL | `http://localhost:8000/mcp` |
+| `SUPABASE_URL` | Supabase project URL (for CLI) | _(required for CLI)_ |
+| `SUPABASE_ANON_KEY` | Supabase anon key (for CLI) | _(required for CLI)_ |
 
 ---
 

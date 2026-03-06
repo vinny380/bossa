@@ -1,7 +1,25 @@
 """FastAPI dependencies."""
 
-from fastapi import Header, HTTPException
+from fastapi import Depends, Header, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from src.auth import resolve_workspace_id
+from src.auth.jwt import verify_supabase_jwt
+
+_bearer = HTTPBearer()
+
+
+async def get_current_user_id(
+    cred: HTTPAuthorizationCredentials = Depends(_bearer),
+) -> str:
+    """Extract Bearer token, verify Supabase JWT, return user_id (sub). Raises 401 if invalid."""
+    try:
+        payload = verify_supabase_jwt(cred.credentials)
+        user_id = payload.get("sub")
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        return str(user_id)
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=str(e)) from e
 
 
 async def get_workspace_id(

@@ -56,6 +56,18 @@ Run tests frequently: `pytest` (or `pytest tests/test_foo.py -v` for a single fi
 - When mounting MCP in FastAPI, pass `mcp_app.lifespan` to the parent app (combine with your own lifespan). Otherwise the session manager won't initialize and clients get "Session terminated".
 - MCP tools delegate to the engine. Keep tool logic thin.
 
+### Streamable HTTP + API key headers
+
+With **streamable HTTP** transport, FastMCP's `CurrentHeaders` returns an empty dict during tool execution. The MCP SDK does not propagate the original HTTP request context into tool handlers, so `get_http_request()` / `get_http_headers()` fail and tools see no headers.
+
+**Fix:** Capture the request at connection time via middleware, store it in a ContextVar, and use it as fallback when `CurrentHeaders` is empty:
+
+1. `CaptureMCPRequestMiddleware` (in `main.py`) runs for `/mcp` paths and stores the request in `_captured_request`.
+2. `_extract_api_key()` in `mcp/server.py` falls back to `get_headers_from_captured_request()` when the injected headers dict is empty.
+3. `src/mcp/request_context.py` holds the ContextVar and `get_headers_from_captured_request()`.
+
+Without this, clients get "API key required" even when sending `Authorization: Bearer <key>` or `X-API-Key: <key>`.
+
 ## Examples
 
 - Load `dotenv` before imports that need env vars (e.g. `OPENAI_API_KEY`).
@@ -64,7 +76,7 @@ Run tests frequently: `pytest` (or `pytest tests/test_foo.py -v` for a single fi
 ## Auth
 
 - API key per workspace. Keys in `workspace_api_keys` (hashed). Resolve via `src.auth.resolve_workspace_id`.
-- REST: `get_workspace_id` dependency. MCP: headers via `CurrentHeaders`, reads from `Authorization` or `X-API-Key`.
+- REST: `get_workspace_id` dependency. MCP: headers via `CurrentHeaders`, with fallback to request captured at connection time (see MCP / FastMCP → Streamable HTTP). Reads from `Authorization` or `X-API-Key`.
 - No key → 401 (REST) or tool error (MCP) when `REQUIRE_API_KEY=true` (default). Set `REQUIRE_API_KEY=false` only for dev/test.
 
 # Version Control

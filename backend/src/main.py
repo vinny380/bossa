@@ -1,9 +1,26 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+
 from src.api.router import api_router
 from src.db import close_pool, ping
+from src.mcp.request_context import _captured_request
 from src.mcp.server import mcp
+
+
+class CaptureMCPRequestMiddleware(BaseHTTPMiddleware):
+    """Capture request for /mcp so tools can read headers when CurrentHeaders is empty."""
+
+    async def dispatch(self, request: Request, call_next):
+        if request.url.path.startswith("/mcp"):
+            token = _captured_request.set(request)
+            try:
+                return await call_next(request)
+            finally:
+                _captured_request.reset(token)
+        return await call_next(request)
 
 
 @asynccontextmanager
@@ -27,6 +44,7 @@ async def combined_lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Bossa", lifespan=combined_lifespan)
+app.add_middleware(CaptureMCPRequestMiddleware)
 app.include_router(api_router, prefix="/api/v1")
 app.mount("/mcp", mcp_app)
 
