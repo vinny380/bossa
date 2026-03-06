@@ -11,12 +11,33 @@ except ImportError:
     pass
 
 import typer
+from rich.console import Console
+from rich.rule import Rule
+from rich.text import Text
 
 from cli.auth_commands import login, logout, signup, whoami
 from cli.keys import keys_app
 from cli.workspaces import workspaces_app
 
-app = typer.Typer(name="bossa", help="Bossa filesystem CLI")
+console = Console()
+
+
+def _print_banner() -> None:
+    tagline = Text()
+    tagline.append("Bossa", style="bold cyan")
+    tagline.append(" — ", style="dim")
+    tagline.append("virtual filesystem for AI agents", style="italic")
+    console.print(Rule(tagline, style="dim"))
+
+
+app = typer.Typer(name="bossa", help="Bossa filesystem CLI", add_completion=False, no_args_is_help=True)
+
+
+@app.callback()
+def _callback(_: typer.Context) -> None:
+    """Virtual filesystem for AI agents — ls, read, write, grep, glob."""
+    _print_banner()
+
 
 app.command("login")(login)
 app.command("signup")(signup)
