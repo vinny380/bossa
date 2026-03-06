@@ -1,4 +1,6 @@
-import re
+def escape_for_like(s: str) -> str:
+    """Escape % and _ for use as literal in SQL LIKE pattern."""
+    return s.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
 
 
 def glob_to_sql_like(pattern: str) -> str:

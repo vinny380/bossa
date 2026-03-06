@@ -50,18 +50,49 @@ async def edit_file(
 
 @mcp.tool()
 async def grep(
-    pattern: str, path: str = "/", workspace_id: str = Depends(get_workspace_id)
-) -> str:
-    """Search file contents for a pattern."""
-    return await fs.grep(workspace_id, pattern, path)
+    pattern: str | None = None,
+    path: str = "/",
+    regex: bool = False,
+    case_sensitive: bool = False,
+    whole_word: bool = False,
+    max_matches: int = 100,
+    offset: int = 0,
+    output_mode: str = "matches",
+    all_of: list[str] | None = None,
+    any_of: list[str] | None = None,
+    none_of: list[str] | None = None,
+    context_before: int = 0,
+    context_after: int = 0,
+    workspace_id: str = Depends(get_workspace_id),
+) -> dict:
+    """Search file contents without reading whole files. Use this to find text by path, literal or regex pattern, inclusion/exclusion criteria, counts, filenames only, or paginated matches. Prefer `output_mode="files_with_matches"` to discover candidate files first, then use `read_file` only on files you need to inspect closely."""
+    result = await fs.grep(
+        workspace_id,
+        pattern=pattern,
+        path=path,
+        regex=regex,
+        case_sensitive=case_sensitive,
+        whole_word=whole_word,
+        max_matches=max_matches,
+        offset=offset,
+        output_mode=output_mode,
+        all_of=all_of,
+        any_of=any_of,
+        none_of=none_of,
+        context_before=context_before,
+        context_after=context_after,
+    )
+    return result.model_dump()
 
 
 @mcp.tool()
 async def glob_search(
-    pattern: str, workspace_id: str = Depends(get_workspace_id)
+    pattern: str,
+    path: str = "/",
+    workspace_id: str = Depends(get_workspace_id),
 ) -> str:
-    """Find files matching a glob pattern."""
-    return await fs.glob_search(workspace_id, pattern)
+    """Find files matching a glob pattern. path scopes the search to that directory."""
+    return await fs.glob_search(workspace_id, pattern, path)
 
 
 @mcp.tool()

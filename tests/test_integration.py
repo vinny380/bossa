@@ -45,7 +45,8 @@ async def test_write_via_mcp_grep_via_rest() -> None:
         )
         assert response.status_code == 200
         data = response.json()
-        assert "find this" in str(data.get("results", ""))
+        assert data["total_matches"] == 1
+        assert "find this pattern" in data["matches"][0]["line"]
 
     async with Client(mcp) as mcp_client:
         await mcp_client.call_tool(

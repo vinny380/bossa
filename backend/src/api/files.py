@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from src.dependencies import get_workspace_id
 from src.engine import filesystem as fs
-from src.models import FileCreate, FileRead, GrepSearchRequest
+from src.models import FileCreate, GrepSearchRequest
 
 router = APIRouter(prefix="/files", tags=["files"])
 
@@ -39,9 +39,24 @@ async def list_files(
 async def search_files(
     body: GrepSearchRequest, workspace_id: str = Depends(get_workspace_id)
 ) -> dict:
-    """Search file contents for a pattern."""
-    result = await fs.grep(workspace_id, body.pattern, body.path)
-    return {"results": result}
+    """Search file contents with agent-friendly criteria and pagination."""
+    result = await fs.grep(
+        workspace_id,
+        pattern=body.pattern,
+        path=body.path,
+        regex=body.regex,
+        case_sensitive=body.case_sensitive,
+        whole_word=body.whole_word,
+        max_matches=body.max_matches,
+        offset=body.offset,
+        output_mode=body.output_mode,
+        all_of=body.all_of,
+        any_of=body.any_of,
+        none_of=body.none_of,
+        context_before=body.context_before,
+        context_after=body.context_after,
+    )
+    return result.model_dump()
 
 
 @router.delete("")

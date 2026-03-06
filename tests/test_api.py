@@ -54,19 +54,76 @@ async def test_get_files_list_returns_directory(api_client: AsyncClient) -> None
 
 @pytest.mark.asyncio
 async def test_post_files_search_grep(api_client: AsyncClient) -> None:
-    """POST /api/v1/files/search greps for pattern."""
+    """POST /api/v1/files/search returns structured grep results."""
     await api_client.post(
         "/api/v1/files",
-        json={"path": "/test/search.txt", "content": "needle in haystack"},
+        json={"path": "/test/search-basic/search.txt", "content": "needle in haystack"},
     )
     response = await api_client.post(
         "/api/v1/files/search",
-        json={"pattern": "needle", "path": "/test/"},
+        json={"pattern": "needle", "path": "/test/search-basic/"},
     )
     assert response.status_code == 200
     data = response.json()
-    content = str(data.get("results", data.get("content", data)))
-    assert "needle" in content
+    assert data["output_mode"] == "matches"
+    assert data["total_matches"] == 1
+    assert data["returned_matches"] == 1
+    assert data["matches"][0]["path"] == "/test/search-basic/search.txt"
+    assert "needle in haystack" in data["matches"][0]["line"]
+
+
+@pytest.mark.asyncio
+async def test_post_files_search_supports_regex_and_files_output(
+    api_client: AsyncClient,
+) -> None:
+    """POST /api/v1/files/search supports regex and files-only mode."""
+    await api_client.post(
+        "/api/v1/files",
+        json={"path": "/test/search-files/a.txt", "content": "ticket-001"},
+    )
+    await api_client.post(
+        "/api/v1/files",
+        json={"path": "/test/search-files/b.txt", "content": "ticket-abc"},
+    )
+    response = await api_client.post(
+        "/api/v1/files/search",
+        json={
+            "pattern": r"ticket-\d+",
+            "path": "/test/search-files/",
+            "regex": True,
+            "output_mode": "files_with_matches",
+        },
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["output_mode"] == "files_with_matches"
+    assert data["files"] == ["/test/search-files/a.txt"]
+
+
+@pytest.mark.asyncio
+async def test_post_files_search_supports_pagination_and_metadata(
+    api_client: AsyncClient,
+) -> None:
+    """POST /api/v1/files/search paginates match results."""
+    await api_client.post(
+        "/api/v1/files",
+        json={"path": "/test/search-page/search-page.txt", "content": "hit one\nhit two\nhit three"},
+    )
+    response = await api_client.post(
+        "/api/v1/files/search",
+        json={
+            "pattern": "hit",
+            "path": "/test/search-page/",
+            "max_matches": 2,
+            "offset": 0,
+        },
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["total_matches"] == 3
+    assert data["returned_matches"] == 2
+    assert data["has_more"] is True
+    assert data["next_offset"] == 2
 
 
 @pytest.mark.asyncio
