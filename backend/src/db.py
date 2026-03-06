@@ -40,3 +40,8 @@ async def execute(query: str, *args) -> None:
     pool = await get_pool()
     async with pool.acquire() as conn:
         await conn.execute(query, *args)
+
+
+async def ping() -> bool:
+    row = await fetch_one("SELECT 1 AS ok")
+    return row is not None and row["ok"] == 1

@@ -1,8 +1,8 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from src.api.router import api_router
-from src.db import close_pool
+from src.db import close_pool, ping
 from src.mcp.server import mcp
 
 
@@ -12,7 +12,11 @@ async def app_lifespan(app: FastAPI):
     await close_pool()
 
 
-mcp_app = mcp.http_app(path="/")
+mcp_app = mcp.http_app(
+    path="/",
+    transport="streamable-http",
+    stateless_http=True,
+)
 
 
 @asynccontextmanager
@@ -25,3 +29,10 @@ async def combined_lifespan(app: FastAPI):
 app = FastAPI(title="Bossa", lifespan=combined_lifespan)
 app.include_router(api_router, prefix="/api/v1")
 app.mount("/mcp", mcp_app)
+
+
+@app.get("/health")
+async def health() -> dict[str, str]:
+    if not await ping():
+        raise HTTPException(status_code=503, detail="Database unavailable")
+    return {"status": "ok", "database": "ok"}

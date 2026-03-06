@@ -1,8 +1,7 @@
 from typing import Annotated, Literal
 
 from fastmcp import FastMCP
-from fastmcp.dependencies import Depends
-from fastmcp.server.dependencies import get_http_headers
+from fastmcp.dependencies import CurrentHeaders
 from pydantic import Field
 from src.auth import resolve_workspace_id
 from src.engine import filesystem as fs
@@ -10,13 +9,14 @@ from src.engine import filesystem as fs
 mcp = FastMCP("Bossa")
 
 
-async def get_workspace_id() -> str:
-    """Resolve workspace from API key in request headers."""
-    headers = get_http_headers(include={"authorization", "x-api-key"})
+def _extract_api_key(headers: dict[str, str]) -> str | None:
+    """Extract API key from Authorization or X-API-Key header."""
     api_key = headers.get("x-api-key")
-    if not api_key and headers.get("authorization", "").startswith("Bearer "):
-        api_key = headers["authorization"][7:].strip()
-    return await resolve_workspace_id(api_key)
+    if not api_key:
+        auth = headers.get("authorization", "")
+        if auth.startswith("Bearer "):
+            api_key = auth[7:].strip()
+    return api_key or None
 
 
 @mcp.tool(
@@ -30,9 +30,10 @@ async def ls(
     path: Annotated[
         str, Field(description="Absolute directory path to list. Defaults to root.")
     ] = "/",
-    workspace_id: str = Depends(get_workspace_id),
+    headers: Annotated[dict, CurrentHeaders()] = {},
 ) -> str:
     """List immediate children (files and directories) at the given path. Returns one entry per line; directories end with `/`. Returns empty string if path has no children."""
+    workspace_id = await resolve_workspace_id(_extract_api_key(headers))
     return await fs.ls(workspace_id, path)
 
 
@@ -45,9 +46,10 @@ async def ls(
 )
 async def read_file(
     path: Annotated[str, Field(description="Absolute path to the file to read.")],
-    workspace_id: str = Depends(get_workspace_id),
+    headers: Annotated[dict, CurrentHeaders()] = {},
 ) -> str:
     """Return the full contents of a file with numbered lines (e.g. `1: line text`). Returns an error string if the file does not exist."""
+    workspace_id = await resolve_workspace_id(_extract_api_key(headers))
     return await fs.read_file(workspace_id, path)
 
 
@@ -62,9 +64,10 @@ async def write_file(
         str, Field(description="Absolute path for the file to create or overwrite.")
     ],
     content: Annotated[str, Field(description="Full file content to write.")],
-    workspace_id: str = Depends(get_workspace_id),
+    headers: Annotated[dict, CurrentHeaders()] = {},
 ) -> str:
     """Create a new file or overwrite an existing file at the given path with the provided content."""
+    workspace_id = await resolve_workspace_id(_extract_api_key(headers))
     return await fs.write_file(workspace_id, path, content)
 
 
@@ -85,9 +88,10 @@ async def edit_file(
         str,
         Field(description="Replacement string. Use empty string to delete old_string."),
     ],
-    workspace_id: str = Depends(get_workspace_id),
+    headers: Annotated[dict, CurrentHeaders()] = {},
 ) -> str:
     """Replace the first occurrence of old_string with new_string in a file. old_string must match exactly. Fails if the file does not exist or old_string is not found."""
+    workspace_id = await resolve_workspace_id(_extract_api_key(headers))
     return await fs.edit_file(workspace_id, path, old_string, new_string)
 
 
@@ -142,9 +146,10 @@ async def grep(
     context_after: Annotated[
         int, Field(description="Number of lines to include after each match.", ge=0)
     ] = 0,
-    workspace_id: str = Depends(get_workspace_id),
+    headers: Annotated[dict, CurrentHeaders()] = {},
 ) -> dict:
     """Search file contents without reading whole files. Supports literal or regex patterns, boolean inclusion/exclusion (all_of, any_of, none_of), and three output modes. Prefer output_mode='files_with_matches' to discover candidate files first, then read_file to inspect closely."""
+    workspace_id = await resolve_workspace_id(_extract_api_key(headers))
     result = await fs.grep(
         workspace_id,
         pattern=pattern,
@@ -179,9 +184,10 @@ async def glob_search(
         ),
     ],
     path: Annotated[str, Field(description="Directory to scope the search to.")] = "/",
-    workspace_id: str = Depends(get_workspace_id),
+    headers: Annotated[dict, CurrentHeaders()] = {},
 ) -> str:
     """Find files whose paths match a glob pattern. Returns matching absolute file paths, one per line."""
+    workspace_id = await resolve_workspace_id(_extract_api_key(headers))
     return await fs.glob_search(workspace_id, pattern, path)
 
 
@@ -194,7 +200,8 @@ async def glob_search(
 )
 async def delete_file(
     path: Annotated[str, Field(description="Absolute path to the file to delete.")],
-    workspace_id: str = Depends(get_workspace_id),
+    headers: Annotated[dict, CurrentHeaders()] = {},
 ) -> str:
     """Permanently delete a file at the given path."""
+    workspace_id = await resolve_workspace_id(_extract_api_key(headers))
     return await fs.delete_file(workspace_id, path)
