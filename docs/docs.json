@@ -1,0 +1,38 @@
+{
+"$schema": "https://mintlify.com/docs.json",
+"theme": "mint",
+"name": "Bossa",
+"description": "Virtual filesystem for apps and agents",
+"colors": {
+    "primary": "#3B82F6"
+},
+"navigation": [
+    {
+    "group": "Getting Started",
+    "pages": [
+        "README",
+        "GETTING_STARTED"
+    ]
+    },
+    {
+    "group": "Reference",
+    "pages": [
+        "CLI",
+        "REST_API",
+        "MCP"
+    ]
+    },
+    {
+    "group": "Integration",
+    "pages": [
+        "AGENT_INTEGRATION"
+    ]
+    },
+    {
+    "group": "Deployment",
+    "pages": [
+        "SELF_HOSTING"
+    ]
+    }
+]
+}
