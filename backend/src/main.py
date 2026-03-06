@@ -1,13 +1,13 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.requests import Request
-
 from src.api.router import api_router
+from src.config import settings
 from src.db import close_pool, ping
 from src.mcp.request_context import _captured_request
 from src.mcp.server import mcp
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
 
 
 class CaptureMCPRequestMiddleware(BaseHTTPMiddleware):
@@ -47,6 +47,17 @@ app = FastAPI(title="Bossa", lifespan=combined_lifespan)
 app.add_middleware(CaptureMCPRequestMiddleware)
 app.include_router(api_router, prefix="/api/v1")
 app.mount("/mcp", mcp_app)
+
+
+@app.get("/auth/config")
+async def auth_config() -> dict[str, str]:
+    """Public auth config for CLI (Supabase URL + anon key). Used when CLI points at managed service."""
+    if settings.supabase_url and settings.supabase_anon_key:
+        return {
+            "supabase_url": settings.supabase_url,
+            "supabase_anon_key": settings.supabase_anon_key,
+        }
+    raise HTTPException(status_code=404, detail="Auth config not available")
 
 
 @app.get("/health")

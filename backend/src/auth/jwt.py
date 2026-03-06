@@ -1,14 +1,8 @@
 """Verify Supabase JWT for control plane auth."""
 
 import jwt
-from jwt import (
-    ExpiredSignatureError,
-    InvalidAudienceError,
-    InvalidSignatureError,
-    PyJWTError,
-    PyJWKClient,
-)
-
+from jwt import (ExpiredSignatureError, InvalidAudienceError,
+                 InvalidSignatureError, PyJWKClient, PyJWTError)
 from src.config import settings
 
 

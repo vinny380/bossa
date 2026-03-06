@@ -1,11 +1,9 @@
-from typing import Annotated, Literal
-
 import logging
+from typing import Annotated, Literal
 
 from fastmcp import FastMCP
 from fastmcp.dependencies import CurrentHeaders
 from pydantic import Field
-
 from src.auth import resolve_workspace_id
 from src.engine import filesystem as fs
 from src.mcp.request_context import get_headers_from_captured_request

@@ -7,6 +7,75 @@ from src.engine.path_utils import (escape_for_like, glob_to_sql_like,
 from src.models import GrepMatch, GrepSearchRequest, GrepSearchResponse
 
 
+def _path_depth(path: str) -> int:
+    """Return hierarchy depth: / = 0, /a = 1, /a/b = 2."""
+    parts = [p for p in path.split("/") if p]
+    return len(parts)
+
+
+async def _get_or_create_folder(workspace_id: str, folder_path: str) -> str:
+    """Get or create folder by path. Returns folder_id. Creates parent chain if needed."""
+    folder_path = normalize_path(folder_path).rstrip("/")
+    if folder_path == "" or folder_path == "/":
+        row = await fetch_one(
+            "SELECT id FROM folders WHERE workspace_id = $1 AND path = '/'",
+            workspace_id,
+        )
+        if row:
+            return str(row["id"])
+        # Create root if missing (for workspaces other than default)
+        row = await fetch_one(
+            """
+            INSERT INTO folders (workspace_id, parent_id, name, path, depth)
+            VALUES ($1, NULL, '', '/', 0)
+            RETURNING id
+            """,
+            workspace_id,
+        )
+        return str(row["id"])
+
+    row = await fetch_one(
+        "SELECT id FROM folders WHERE workspace_id = $1 AND path = $2",
+        workspace_id,
+        folder_path,
+    )
+    if row:
+        return str(row["id"])
+
+    # Create parent first
+    parts = [p for p in folder_path.split("/") if p]
+    parent_path = "/" + "/".join(parts[:-1]) if len(parts) > 1 else "/"
+    parent_id = await _get_or_create_folder(workspace_id, parent_path)
+    name = parts[-1]
+    depth = _path_depth(folder_path)
+
+    row = await fetch_one(
+        """
+        INSERT INTO folders (workspace_id, parent_id, name, path, depth)
+        VALUES ($1, $2, $3, $4, $5)
+        RETURNING id
+        """,
+        workspace_id,
+        parent_id,
+        name,
+        folder_path,
+        depth,
+    )
+    return str(row["id"])
+
+
+async def _ensure_folders_for_path(workspace_id: str, full_path: str) -> str:
+    """Ensure all parent folders exist for full_path. Returns folder_id for the file's parent."""
+    full_path = normalize_path(full_path)
+    if "/" not in full_path.strip("/"):
+        folder_path = "/"
+    else:
+        folder_path = "/" + "/".join(full_path.rsplit("/", 1)[0].split("/")[1:])
+        if not folder_path.startswith("/"):
+            folder_path = "/" + folder_path
+    return await _get_or_create_folder(workspace_id, folder_path)
+
+
 async def ls(workspace_id: str, path: str = "/") -> str:
     """List files and directories at the given path."""
     path = normalize_path(path)
@@ -62,19 +131,50 @@ async def read_file(workspace_id: str, path: str) -> str:
 async def write_file(workspace_id: str, path: str, content: str) -> str:
     """Create or overwrite a file."""
     path = normalize_path(path)
+    folder_id = await _ensure_folders_for_path(workspace_id, path)
+    name = path.rsplit("/", 1)[-1] or path.strip("/") or "file"
     await execute(
         """
-        INSERT INTO files (workspace_id, path, content)
-        VALUES ($1, $2, $3)
+        INSERT INTO files (workspace_id, folder_id, path, name, content)
+        VALUES ($1, $2, $3, $4, $5)
         ON CONFLICT (workspace_id, path) DO UPDATE SET
+            folder_id = EXCLUDED.folder_id,
+            name = EXCLUDED.name,
             content = EXCLUDED.content,
             updated_at = NOW()
         """,
         workspace_id,
+        folder_id,
         path,
+        name,
         content,
     )
     return f"Wrote {path}"
+
+
+async def write_files_bulk(workspace_id: str, files: list[tuple[str, str]]) -> dict:
+    """Create or overwrite multiple files. Returns {created, updated, failed}."""
+    created = 0
+    updated = 0
+    failed: list[dict] = []
+
+    for path, content in files:
+        try:
+            path = normalize_path(path)
+            existing = await fetch_one(
+                "SELECT 1 FROM files WHERE workspace_id = $1 AND path = $2",
+                workspace_id,
+                path,
+            )
+            await write_file(workspace_id, path, content)
+            if existing:
+                updated += 1
+            else:
+                created += 1
+        except Exception as e:
+            failed.append({"path": path, "error": str(e)})
+
+    return {"created": created, "updated": updated, "failed": failed}
 
 
 async def edit_file(

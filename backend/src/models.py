@@ -8,6 +8,16 @@ class FileCreate(BaseModel):
     content: str
 
 
+class FileBulkCreate(BaseModel):
+    files: list[FileCreate]
+
+
+class FileBulkCreateResponse(BaseModel):
+    created: int
+    updated: int
+    failed: list[dict]
+
+
 class FileRead(BaseModel):
     path: str
     content: str

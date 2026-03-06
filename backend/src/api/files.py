@@ -1,9 +1,23 @@
 from fastapi import APIRouter, Depends, HTTPException
 from src.dependencies import get_workspace_id
 from src.engine import filesystem as fs
-from src.models import FileCreate, GrepSearchRequest
+from src.models import FileBulkCreate, FileCreate, GrepSearchRequest
 
 router = APIRouter(prefix="/files", tags=["files"])
+
+
+@router.post("/bulk")
+async def create_files_bulk(
+    body: FileBulkCreate, workspace_id: str = Depends(get_workspace_id)
+) -> dict:
+    """Create or overwrite multiple files."""
+    if not body.files:
+        raise HTTPException(status_code=400, detail="files array cannot be empty")
+    if len(body.files) > 100:
+        raise HTTPException(status_code=413, detail="batch size exceeds 100 files")
+    files_tuples = [(f.path, f.content) for f in body.files]
+    result = await fs.write_files_bulk(workspace_id, files_tuples)
+    return result
 
 
 @router.post("")

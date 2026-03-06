@@ -4,7 +4,6 @@ import hashlib
 import logging
 
 import asyncpg
-
 from src.config import settings
 from src.db import fetch_one
 
@@ -53,10 +52,17 @@ async def resolve_workspace_id(api_key: str | None) -> str:
             key_hash,
         )
     if row:
-        if key_hash == hash_key("sk-default") and not settings.allow_default_key:
+        if (
+            key_hash == hash_key(settings.default_api_key)
+            and not settings.allow_default_key
+        ):
             logger.info("resolve_workspace_id: sk_default_blocked")
             raise ValueError("Invalid API key")
-        logger.info("resolve_workspace_id: resolved workspace_id=%s", row["workspace_id"])
+        logger.info(
+            "resolve_workspace_id: resolved workspace_id=%s", row["workspace_id"]
+        )
         return str(row["workspace_id"])
-    logger.info("resolve_workspace_id: invalid_api_key key_hash_prefix=%s", key_hash[:10])
+    logger.info(
+        "resolve_workspace_id: invalid_api_key key_hash_prefix=%s", key_hash[:10]
+    )
     raise ValueError("Invalid API key")

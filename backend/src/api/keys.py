@@ -4,9 +4,8 @@ import secrets
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-
-from src.auth import hash_key
 from src.api.workspaces import require_workspace_owner
+from src.auth import hash_key
 from src.db import fetch_all, fetch_one
 from src.dependencies import get_current_user_id
 
