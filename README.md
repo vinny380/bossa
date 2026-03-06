@@ -27,6 +27,12 @@ uvicorn src.main:app --reload
 cd backend && python seed.py
 ```
 
+Seed a specific workspace by API key:
+
+```bash
+python seed.py -k sk-aa2b593af96316c9347ce102b7847fbf6b8f373630bea998
+```
+
 ### 4. Example Agent
 
 ```bash
@@ -40,6 +46,19 @@ python agent.py
 
 - **REST**: `http://localhost:8000/api/v1/files`
 - **MCP**: `http://localhost:8000/mcp` (HTTP transport)
+
+### Workspaces & API Keys
+
+Each workspace has its own files. Pass an API key to access a workspace:
+
+- **Header**: `Authorization: Bearer <key>` or `X-API-Key: <key>`
+- **Default key** (dev): `sk-default` → default workspace
+
+Create a new workspace + key:
+
+```bash
+cd backend && python scripts/create_workspace.py my-workspace
+```
 
 ## Tests
 

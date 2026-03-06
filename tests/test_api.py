@@ -84,3 +84,25 @@ async def test_delete_files_removes_file(api_client: AsyncClient) -> None:
         "/api/v1/files", params={"path": "/test/api-delete.txt"}
     )
     assert get_response.status_code == 404 or "not found" in get_response.text.lower()
+
+
+@pytest.mark.asyncio
+async def test_invalid_api_key_returns_401(api_client: AsyncClient) -> None:
+    """Invalid API key returns 401."""
+    response = await api_client.get(
+        "/api/v1/files",
+        params={"path": "/"},
+        headers={"Authorization": "Bearer sk-invalid"},
+    )
+    assert response.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_valid_api_key_works(api_client: AsyncClient) -> None:
+    """Valid API key (sk-default) allows access."""
+    response = await api_client.get(
+        "/api/v1/files/list",
+        params={"path": "/"},
+        headers={"Authorization": "Bearer sk-default"},
+    )
+    assert response.status_code == 200
