@@ -1,4 +1,5 @@
-"""Seed the default workspace with sample files for context discovery demo."""
+"""Seed a workspace with sample files for context discovery demo."""
+import argparse
 import asyncio
 import os
 import sys
@@ -7,10 +8,9 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
+from src.auth import resolve_workspace_id
 from src.config import settings
 from src.engine import filesystem as fs
-
-WORKSPACE_ID = "00000000-0000-0000-0000-000000000001"
 
 FILES = [
     ("/customers/acme-corp/profile.md", """# Acme Corp
@@ -54,7 +54,18 @@ Write notes and analysis here. Agents can use this for session memory."""),
 
 
 async def main() -> None:
-    workspace_id = settings.default_workspace_id
+    parser = argparse.ArgumentParser(description="Seed a workspace with sample files")
+    parser.add_argument(
+        "-k", "--key",
+        help="API key for the workspace to seed (default: default workspace)",
+    )
+    args = parser.parse_args()
+
+    if args.key:
+        workspace_id = await resolve_workspace_id(args.key)
+    else:
+        workspace_id = settings.default_workspace_id
+
     for path, content in FILES:
         await fs.write_file(workspace_id, path, content)
         print(f"  {path}")
