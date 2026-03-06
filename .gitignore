@@ -56,3 +56,9 @@ logs/
 convo.md
 .cursor
 PLAN.md
+.vercel
+.env*.local
+.python-version
+
+# Supabase
+supabase/.temp/

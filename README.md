@@ -60,6 +60,7 @@ docker compose exec -T postgres psql -U postgres -d bossa \
 ```bash
 cd backend
 cp .env.example .env        # DATABASE_URL is pre-configured for local Docker
+# Add ALLOW_DEFAULT_KEY=true to .env for local dev (lets you use sk-default)
 pip install -r requirements.txt
 uvicorn src.main:app --reload
 ```
@@ -70,7 +71,70 @@ uvicorn src.main:app --reload
 cd backend && python seed.py
 ```
 
-Server is live at `http://localhost:8000`. MCP at `/mcp`, REST at `/api/v1`.
+Server is live at `http://localhost:8000`. Health at `/health`, MCP at `/mcp`, REST at `/api/v1`.
+
+### 5. Run tests
+
+```bash
+pytest
+```
+
+---
+
+## Deploy To Supabase And Vercel
+
+This is the smallest hosted deployment path for Bossa today. **API keys are required** for all data endpoints (REST and MCP); only `/health` is public.
+
+### 1. Create a Supabase project
+
+Use the project Postgres connection string as `DATABASE_URL`. The app connects directly over Postgres, so no Supabase client setup is required for this first deployment.
+
+### 2. Run migrations on Supabase
+
+Apply both SQL files in order:
+
+```bash
+supabase/migrations/001_initial_schema.sql
+supabase/migrations/002_workspace_api_keys.sql
+```
+
+You can run them with the Supabase SQL editor or `psql` against the Supabase Postgres endpoint.
+
+### 3. Set Vercel environment variables
+
+In your Vercel project settings, add:
+
+```bash
+DATABASE_URL=postgres://postgres:[YOUR-PASSWORD]@db.[PROJECT-REF].supabase.co:6543/postgres
+DEFAULT_WORKSPACE_ID=00000000-0000-0000-0000-000000000001
+# REQUIRE_API_KEY=true   # default; enforces API key for all data endpoints
+# ALLOW_DEFAULT_KEY=false  # default; do NOT set true in production (blocks sk-default)
+```
+
+### 4. Deploy
+
+This repo includes a root `app.py`, `requirements.txt`, and `vercel.json` so Vercel can serve the existing FastAPI app without moving backend code around.
+
+```bash
+vercel
+```
+
+For local Vercel-style verification:
+
+```bash
+vercel dev
+```
+
+### 5. Smoke test the deployment
+
+```bash
+curl https://your-deployment-url.vercel.app/health
+curl -H "Authorization: Bearer YOUR_API_KEY" https://your-deployment-url.vercel.app/api/v1/files/list?path=/
+```
+
+`sk-default` is blocked in production. Create keys with `python backend/scripts/create_workspace.py` and use those for API access.
+
+MCP endpoint: `https://your-deployment-url.vercel.app/mcp` (pass `Authorization: Bearer YOUR_API_KEY` or `X-API-Key: YOUR_API_KEY` in client headers).
 
 ---
 

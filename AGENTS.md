@@ -64,8 +64,8 @@ Run tests frequently: `pytest` (or `pytest tests/test_foo.py -v` for a single fi
 ## Auth
 
 - API key per workspace. Keys in `workspace_api_keys` (hashed). Resolve via `src.auth.resolve_workspace_id`.
-- REST: `get_workspace_id` dependency. MCP: `get_workspace_id` via `Depends`, reads from `Authorization` or `X-API-Key`.
-- No key → default workspace. Invalid key → 401 (REST) or tool error (MCP).
+- REST: `get_workspace_id` dependency. MCP: headers via `CurrentHeaders`, reads from `Authorization` or `X-API-Key`.
+- No key → 401 (REST) or tool error (MCP) when `REQUIRE_API_KEY=true` (default). Set `REQUIRE_API_KEY=false` only for dev/test.
 
 # Version Control
 - Leverage GitHub branches to implement new features, merge them back into dev.
