@@ -13,20 +13,27 @@ from langchain_core.messages import HumanMessage
 from langchain_mcp_adapters.client import MultiServerMCPClient
 
 
-def _bossa_headers() -> dict[str, str]:
+def _bossa_headers(base: str) -> dict[str, str]:
     """Headers for Bossa MCP (API key for workspace)."""
-    key = os.environ.get("BOSSA_API_KEY", "sk-default")
+    if "localhost" in base:
+        key = "sk-default"
+    else:
+        key = os.environ.get("BOSSA_API_KEY", "").strip()
+        if not key:
+            raise SystemExit("Set BOSSA_API_KEY in .env for non-localhost")
     return {"X-API-Key": key, "Authorization": f"Bearer {key}"}
 
 
 async def main() -> None:
     print("Connecting to Bossa...")
+    base = os.environ.get("BOSSA_API_URL", "http://localhost:8000").strip().rstrip("/")
+    mcp_url = f"{base}/mcp"
     client = MultiServerMCPClient(
         {
             "bossa": {
-                "url": os.environ.get("BOSSA_URL", "http://localhost:8000/mcp"),
+                "url": mcp_url,
                 "transport": "streamable_http",
-                "headers": _bossa_headers(),
+                "headers": _bossa_headers(base),
             }
         }
     )

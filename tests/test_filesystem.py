@@ -1,11 +1,35 @@
 import pytest
+from src.db import fetch_all
 from src.engine.filesystem import (delete_file, edit_file, glob_search, grep,
-                                   ls, read_file, write_file)
+                                   ls, read_file, write_file, write_files_bulk)
 
 
 @pytest.fixture
 def workspace_id() -> str:
     return "00000000-0000-0000-0000-000000000001"
+
+
+@pytest.mark.asyncio
+async def test_write_file_creates_parent_folders(workspace_id: str) -> None:
+    """write_file creates parent folder rows in folders table."""
+    file_path = "/test/folder-parents/nested/file.txt"
+    await write_file(workspace_id, file_path, "content")
+    rows = await fetch_all(
+        "SELECT path, depth FROM folders WHERE workspace_id = $1 ORDER BY path",
+        workspace_id,
+    )
+    paths = [r["path"] for r in rows]
+    assert "/" in paths
+    assert "/test" in paths
+    assert "/test/folder-parents" in paths
+    assert "/test/folder-parents/nested" in paths
+    # Root=0, /test=1, /test/folder-parents=2, /test/folder-parents/nested=3
+    by_path = {r["path"]: r["depth"] for r in rows}
+    assert by_path["/"] == 0
+    assert by_path["/test"] == 1
+    assert by_path["/test/folder-parents"] == 2
+    assert by_path["/test/folder-parents/nested"] == 3
+    await delete_file(workspace_id, file_path)
 
 
 @pytest.mark.asyncio
@@ -264,6 +288,23 @@ async def test_delete_file_removes_file(workspace_id: str) -> None:
     await delete_file(workspace_id, path)
     result = await read_file(workspace_id, path)
     assert "not found" in result.lower() or "error" in result.lower() or result == ""
+
+
+@pytest.mark.asyncio
+async def test_write_files_bulk(workspace_id: str) -> None:
+    """write_files_bulk creates multiple files and returns created/updated counts."""
+    files = [
+        ("/test/bulk/a.txt", "content a"),
+        ("/test/bulk/b.txt", "content b"),
+        ("/test/bulk/sub/c.txt", "content c"),
+    ]
+    result = await write_files_bulk(workspace_id, files)
+    assert result["created"] + result["updated"] >= 3
+    assert len(result["failed"]) == 0
+    for path, content in files:
+        got = await read_file(workspace_id, path)
+        assert content in got
+        await delete_file(workspace_id, path)
 
 
 @pytest.mark.asyncio

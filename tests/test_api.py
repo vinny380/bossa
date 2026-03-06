@@ -24,6 +24,20 @@ async def test_health_returns_ok(api_client: AsyncClient) -> None:
 
 
 @pytest.mark.asyncio
+async def test_auth_config() -> None:
+    """GET /auth/config returns config when configured, 404 otherwise."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        response = await client.get("/auth/config")
+    if response.status_code == 200:
+        data = response.json()
+        assert "supabase_url" in data
+        assert "supabase_anon_key" in data
+    else:
+        assert response.status_code == 404
+
+
+@pytest.mark.asyncio
 async def test_post_files_creates_file(api_client: AsyncClient) -> None:
     """POST /api/v1/files creates a file."""
     response = await api_client.post(
@@ -187,6 +201,58 @@ async def test_invalid_api_key_returns_401(api_client: AsyncClient) -> None:
         params={"path": "/"},
         headers={"Authorization": "Bearer sk-invalid"},
     )
+    assert response.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_post_files_bulk_creates_files(api_client: AsyncClient) -> None:
+    """POST /api/v1/files/bulk creates multiple files."""
+    response = await api_client.post(
+        "/api/v1/files/bulk",
+        json={
+            "files": [
+                {"path": "/test/bulk-api/a.txt", "content": "a"},
+                {"path": "/test/bulk-api/b.txt", "content": "b"},
+            ],
+        },
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert "created" in data
+    assert "updated" in data
+    assert "failed" in data
+    assert data["created"] + data["updated"] >= 2
+    assert len(data["failed"]) == 0
+    # Verify files exist
+    for path in ["/test/bulk-api/a.txt", "/test/bulk-api/b.txt"]:
+        r = await api_client.get("/api/v1/files", params={"path": path})
+        assert r.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_post_files_bulk_validation_empty_rejects(
+    api_client: AsyncClient,
+) -> None:
+    """POST /api/v1/files/bulk rejects empty files array."""
+    response = await api_client.post(
+        "/api/v1/files/bulk",
+        json={"files": []},
+    )
+    assert response.status_code == 400
+
+
+@pytest.mark.asyncio
+async def test_post_files_bulk_auth_required(monkeypatch) -> None:
+    """POST /api/v1/files/bulk requires API key when enforced."""
+    from src import config
+
+    monkeypatch.setattr(config.settings, "require_api_key", True)
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        response = await client.post(
+            "/api/v1/files/bulk",
+            json={"files": [{"path": "/x.txt", "content": "x"}]},
+        )
     assert response.status_code == 401
 
 
