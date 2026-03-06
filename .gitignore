@@ -52,5 +52,7 @@ Thumbs.db
 *.log
 logs/
 
+# Miscellaneous
 convo.md
 .cursor
+PLAN.md
