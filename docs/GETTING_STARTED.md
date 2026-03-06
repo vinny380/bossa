@@ -57,7 +57,16 @@ Store this key securely. It won't be shown again.
 
 ## 4. Make Your First Request
 
-### REST
+Agents can use Bossa in two main ways:
+
+| Interface | When to use |
+|-----------|-------------|
+| **CLI** | Your agent runs tools as subprocesses (CLI-based harnesses, beads, etc.). Use `bossa files ls`, `read`, `write`, `grep`, `glob`, `edit`, `delete` with `--json` or `BOSSA_CLI_JSON=1`. |
+| **MCP** | Your harness supports MCP (Claude Desktop, Cursor, LangChain). Connect to the MCP endpoint and use the tools directly. |
+
+Both expose the same filesystem operations. Choose based on how your agent executes tools.
+
+### REST (scripts, curl)
 
 ```bash
 # List root directory
@@ -76,7 +85,18 @@ curl -H "Authorization: Bearer YOUR_API_KEY" \
   "https://filesystem-fawn.vercel.app/api/v1/files?path=/hello.txt"
 ```
 
-### MCP
+### CLI (agent subprocess)
+
+```bash
+export BOSSA_API_KEY=YOUR_API_KEY
+export BOSSA_CLI_JSON=1   # Optional: JSON output for agents
+bossa files ls /
+bossa files read /hello.txt
+```
+
+See [CLI Reference](./CLI.md) for the full command reference.
+
+### MCP (agent frameworks)
 
 Connect any MCP client (Claude Desktop, Cursor, LangChain) to:
 
@@ -105,6 +125,22 @@ bossa files upload ./my-docs --target /docs
 
 Set `BOSSA_API_KEY` in your environment, or use `--key YOUR_API_KEY`. The CLI uses the managed service by default when `BOSSA_API_URL` points to the hosted URL.
 
+### Full filesystem access
+
+```bash
+bossa files ls /              # List directory
+bossa files read /path/file   # Read file
+bossa files write /path       # Write (stdin or --content)
+bossa files grep "pattern"    # Search contents
+bossa files glob "*.md"       # Find by glob
+bossa files edit /path --old X --new Y
+bossa files delete /path
+```
+
+### Using the CLI as an agent
+
+When your agent harness runs tools as subprocesses (e.g. CLI-based agents), use `bossa files` for full filesystem access. Use `--json` for machine-readable output, or set `BOSSA_CLI_JSON=1` so all commands return JSON without passing the flag. Exit codes: 0 success, 1 error, 2 auth failure.
+
 ---
 
 ## Environment Variables Summary
@@ -113,6 +149,7 @@ Set `BOSSA_API_KEY` in your environment, or use `--key YOUR_API_KEY`. The CLI us
 |----------|----------|-------------|
 | `BOSSA_API_URL` | No | Default: `https://filesystem-fawn.vercel.app` (managed service). Override for self-hosted. |
 | `BOSSA_API_KEY` | Yes (API calls) | Your workspace API key (for file uploads, examples) |
+| `BOSSA_CLI_JSON` | No | Set to `1` for agent mode — all CLI commands return JSON |
 | `OPENAI_API_KEY` | Yes (examples) | For running the example agents |
 
 **Self-hosting only:** Set `SUPABASE_URL` and `SUPABASE_ANON_KEY` when pointing the CLI at your own backend.

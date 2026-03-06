@@ -138,6 +138,48 @@ At least one of `pattern`, `all_of`, `any_of`, or `none_of` is required.
 
 ---
 
+### Glob Search
+
+```
+GET /api/v1/files/glob?pattern=*.md&path=/
+```
+
+**Query:**
+
+| Param | Default | Description |
+|-------|---------|--------------|
+| pattern | — | Glob pattern (e.g. `*.md`, `**/*.py`) |
+| path | `/` | Directory to scope search |
+
+**Response:** `200` — `{"paths": ["/docs/a.md", "/docs/b.md"]}`
+
+---
+
+### Edit a File
+
+```
+PATCH /api/v1/files
+Content-Type: application/json
+```
+
+**Body:**
+
+```json
+{
+  "path": "/config.json",
+  "old_string": "\"debug\": false",
+  "new_string": "\"debug\": true"
+}
+```
+
+Replaces the first occurrence of `old_string` with `new_string`.
+
+**Response:** `200` — `{"path": "/config.json", "edited": true}`
+
+**Errors:** `404` if file not found or old_string not in file
+
+---
+
 ### Delete a File
 
 ```

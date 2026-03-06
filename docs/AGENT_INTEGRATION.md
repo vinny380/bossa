@@ -11,15 +11,34 @@ This guide is for **AI agents** and **developers** building agents that use Boss
 
 1. **Get an API key** — Sign up via the Bossa CLI, create a workspace, create a key. See [Getting Started](./GETTING_STARTED.md).
 
-2. **Connect via MCP** — Point your MCP client at `https://filesystem-fawn.vercel.app/mcp` with headers:
-   - `Authorization: Bearer YOUR_API_KEY`
-   - `X-API-Key: YOUR_API_KEY`
+2. **Choose your interface:**
+   - **CLI** — If your agent runs tools as subprocesses (CLI-based harnesses, beads), use `bossa files ls`, `read`, `write`, `grep`, `glob`, `edit`, `delete`. Set `BOSSA_CLI_JSON=1` for JSON output.
+   - **MCP** — If your harness supports MCP (LangChain, Claude, Cursor), connect to `https://filesystem-fawn.vercel.app/mcp` with headers `Authorization: Bearer YOUR_API_KEY` or `X-API-Key: YOUR_API_KEY`.
 
-3. **Use the tools** — `ls`, `read_file`, `write_file`, `grep`, `glob_search`, `edit_file`, `delete_file`.
+3. **Use the tools** — Both interfaces expose the same operations: `ls`, `read`/`read_file`, `write`/`write_file`, `grep`, `glob`/`glob_search`, `edit`/`edit_file`, `delete`/`delete_file`.
 
 ---
 
-## LangChain Example
+## CLI Example (agent subprocess)
+
+When your agent executes tools as subprocesses:
+
+```bash
+export BOSSA_API_KEY=your-api-key
+export BOSSA_CLI_JSON=1
+
+# Agent discovers context
+bossa files ls /
+bossa files glob "*.md" --path /memory
+bossa files read /memory/summary.md
+
+# Agent writes memory
+echo "# Session notes\n\n..." | bossa files write /memory/session-1.md
+```
+
+---
+
+## LangChain Example (MCP)
 
 ```python
 import asyncio
@@ -59,9 +78,11 @@ asyncio.run(main())
 
 ## Tool Usage Patterns
 
+These patterns apply to both MCP tools and CLI commands. MCP uses `read_file`; CLI uses `bossa files read`.
+
 ### Explore Before Reading
 
-Use `ls` to discover structure, then `read_file` only for relevant files:
+Use `ls` to discover structure, then `read`/`read_file` only for relevant files:
 
 ```
 1. ls path="/"
@@ -80,18 +101,26 @@ Use `grep` with `output_mode="files_with_matches"` to find files, then read only
 
 ### Save Agent Output
 
-Use `write_file` to persist summaries, analyses, or memory:
+Use `write_file` (MCP) or `bossa files write` (CLI) to persist summaries, analyses, or memory:
 
 ```
+# MCP
 write_file path="/memory/session-summary.md" content="# Session Summary\n\n..."
+
+# CLI
+echo "# Session Summary\n\n..." | bossa files write /memory/session-summary.md
 ```
 
 ### Edit In Place
 
-Use `edit_file` for targeted changes instead of read → modify → write:
+Use `edit_file` (MCP) or `bossa files edit` (CLI) for targeted changes instead of read → modify → write:
 
 ```
+# MCP
 edit_file path="/config.json" old_string="\"debug\": false" new_string="\"debug\": true"
+
+# CLI
+bossa files edit /config.json --old '"debug": false' --new '"debug": true'
 ```
 
 ---

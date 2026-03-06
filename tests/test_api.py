@@ -265,3 +265,58 @@ async def test_valid_api_key_works(api_client: AsyncClient) -> None:
         headers={"Authorization": "Bearer sk-default"},
     )
     assert response.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_get_files_glob_returns_paths(api_client: AsyncClient) -> None:
+    """GET /api/v1/files/glob returns matching file paths."""
+    await api_client.post(
+        "/api/v1/files",
+        json={"path": "/test/glob-dir/a.md", "content": "a"},
+    )
+    await api_client.post(
+        "/api/v1/files",
+        json={"path": "/test/glob-dir/b.md", "content": "b"},
+    )
+    await api_client.post(
+        "/api/v1/files",
+        json={"path": "/test/glob-dir/c.txt", "content": "c"},
+    )
+    response = await api_client.get(
+        "/api/v1/files/glob",
+        params={"pattern": "*.md", "path": "/test/glob-dir/"},
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert "paths" in data
+    paths = data["paths"]
+    assert "/test/glob-dir/a.md" in paths
+    assert "/test/glob-dir/b.md" in paths
+    assert "/test/glob-dir/c.txt" not in paths
+
+
+@pytest.mark.asyncio
+async def test_patch_files_edit_replaces_string(api_client: AsyncClient) -> None:
+    """PATCH /api/v1/files edits file by replacing old_string with new_string."""
+    await api_client.post(
+        "/api/v1/files",
+        json={"path": "/test/api-edit.txt", "content": "hello world"},
+    )
+    response = await api_client.patch(
+        "/api/v1/files",
+        json={
+            "path": "/test/api-edit.txt",
+            "old_string": "world",
+            "new_string": "bossa",
+        },
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data.get("path") == "/test/api-edit.txt"
+    assert data.get("edited") is True
+    # Verify content changed
+    get_resp = await api_client.get(
+        "/api/v1/files", params={"path": "/test/api-edit.txt"}
+    )
+    assert get_resp.status_code == 200
+    assert "hello bossa" in str(get_resp.json().get("content", ""))

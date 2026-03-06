@@ -1,14 +1,16 @@
 <p align="center">
   <h1 align="center">Bossa</h1>
   <p align="center">
-    <strong>A virtual filesystem for AI agents, backed by Postgres.</strong>
+    <strong>The Memory Layer of Your Agents</strong>
   </p>
   <p align="center">
-    Give your agents <code>ls</code>, <code>read</code>, <code>write</code>, <code>grep</code>, and <code>glob</code> — powered by SQL under the hood.
+    Persistent, searchable memory — backed by Postgres, exposed as a filesystem. Give your agents <code>ls</code>, <code>read</code>, <code>write</code>, <code>grep</code>, and <code>glob</code> to store and recall knowledge across sessions.
   </p>
   <p align="center">
     <a href="#get-started">Get Started</a> &middot;
-    <a href="#mcp-tools">MCP Tools</a> &middot;
+    <a href="#dynamic-context-discovery">Dynamic Context Discovery</a> &middot;
+    <a href="#cli">CLI</a> &middot;
+    <a href="#mcp-tools">MCP</a> &middot;
     <a href="#rest-api">REST API</a> &middot;
     <a href="#examples">Examples</a> &middot;
     <a href="docs/README.md">Docs</a>
@@ -19,28 +21,44 @@
 
 ## Why Bossa?
 
-Most agent frameworks give you tools that read from local disk. That works until you need **multi-tenant isolation**, **search at scale**, or **persistent memory across sessions**.
-
-Bossa replaces the local filesystem with a **Postgres-backed virtual filesystem** and exposes it through **MCP** (Model Context Protocol) and a **REST API**. Your agents use familiar operations — `ls`, `read_file`, `grep`, `write_file` — while Bossa translates them to SQL queries with trigram indexes, full-text search, and workspace-scoped access control.
+Agents need memory that persists across sessions and scales with search. Bossa is that memory layer — a **Postgres-backed virtual filesystem** exposed through **CLI**, **MCP** (Model Context Protocol), and **REST**. Your agents use familiar operations — `ls`, `read`, `grep`, `write` — while Bossa translates them to SQL with trigram indexes, full-text search, and workspace-scoped access control.
 
 ```
-Agent  ──MCP──▶  Bossa  ──SQL──▶  Postgres
-       ──REST─▶         (pg_trgm, tsvector, JSONB)
+Agent  ──CLI──▶  Bossa  ──SQL──▶  Postgres
+       ──MCP──▶        (pg_trgm, tsvector, JSONB)
+       ──REST─▶
 ```
 
 **What you get:**
 
-- **Filesystem semantics** agents already understand (`ls`, `read`, `write`, `grep`, `glob`, `edit`, `delete`)
-- **Workspace isolation** — each tenant gets its own filesystem, scoped by API key
-- **Fast search** — `grep` with boolean logic (`all_of`, `any_of`, `none_of`), regex, pagination, and context lines
-- **Dual interface** — MCP for agent frameworks (LangChain, Claude, etc.), REST for everything else
-- **Zero local state** — everything lives in Postgres, agents can resume across sessions
+- **Memory as filesystem** — Agents already understand files; no new abstractions. Use `ls`, `read`, `write`, `grep`, `glob`, `edit`, `delete`.
+- **Dynamic context discovery** — Search and explore at runtime instead of packing static prompts. Find what matters without reading everything.
+- **Workspace isolation** — Each agent or tenant gets its own memory space, scoped by API key.
+- **Fast search** — `grep` with boolean logic (`all_of`, `any_of`, `none_of`), regex, pagination, and context lines.
+- **CLI + MCP + REST** — Use the CLI when your agent runs subprocesses; use MCP when your harness supports it (LangChain, Claude, Cursor); use REST for scripts and custom integrations.
+
+---
+
+## Dynamic Context Discovery
+
+Traditional **context engineering** means manually assembling prompts with the right docs, examples, and rules. It works, but it's brittle and doesn't scale — you have to guess what context matters upfront.
+
+**Dynamic context discovery** flips that: agents discover what they need at runtime. They `ls` to explore structure, `grep` to find relevant files, `read_file` only what matters. Bossa provides the searchable, persistent memory layer that makes this possible.
+
+```mermaid
+flowchart LR
+    Agent --> Discover[ls / grep / glob]
+    Discover --> Load[read_file]
+    Load --> Respond[Respond]
+```
+
+Instead of packing static prompts, let your agents discover context dynamically.
 
 ---
 
 ## Get Started
 
-**Use the managed service** — no infrastructure to run.
+**Use the managed service** — no infrastructure to run. Give your agents a memory layer and dynamic context discovery in minutes.
 
 | Step | Action |
 |------|--------|
@@ -55,7 +73,8 @@ Agent  ──MCP──▶  Bossa  ──SQL──▶  Postgres
 
 | Doc | Description |
 |-----|-------------|
-| [Getting Started](docs/GETTING_STARTED.md) | Sign up, API key, first request |
+| [Getting Started](docs/GETTING_STARTED.md) | Sign up, API key, memory layer setup |
+| [CLI Reference](docs/CLI.md) | Full CLI command reference |
 | [MCP Integration](docs/MCP.md) | Claude, Cursor, LangChain setup |
 | [REST API](docs/REST_API.md) | Full API reference |
 | [Agent Integration](docs/AGENT_INTEGRATION.md) | LangChain examples, tool patterns |
@@ -65,7 +84,7 @@ Agent  ──MCP──▶  Bossa  ──SQL──▶  Postgres
 
 ## CLI
 
-The Bossa CLI manages accounts, workspaces, and API keys. It defaults to the managed service — no config needed.
+The Bossa CLI is a first-class interface for agents. When your harness runs tools as subprocesses (e.g. CLI-based agents, beads), use `bossa files` for full filesystem parity with MCP: `ls`, `read`, `write`, `grep`, `glob`, `edit`, `delete`. The CLI also manages accounts, workspaces, and API keys. It defaults to the managed service — no config needed.
 
 ```bash
 pip install -r requirements.txt
@@ -78,17 +97,21 @@ bossa login                  # Log in
 bossa workspaces create my-app
 bossa keys create my-app     # Copy the key — shown once
 
+bossa files ls /             # List directory
+bossa files read /docs/x.md  # Read file
 bossa files put ./doc.txt --target /docs
 bossa files upload ./my-docs --target /docs
 ```
 
-See [Getting Started](docs/GETTING_STARTED.md) for full setup.
+**Agent mode:** Use `--json` for machine-readable output, or set `BOSSA_CLI_JSON=1` to get JSON from all commands. Exit codes: 0 success, 1 error, 2 auth failure.
+
+See [CLI Reference](docs/CLI.md) for full command reference.
 
 ---
 
 ## MCP Tools
 
-Bossa exposes **7 tools** via MCP. Connect Claude Desktop, Cursor, LangChain, or any MCP client to `https://filesystem-fawn.vercel.app/mcp`.
+When your agent harness supports MCP (Claude Desktop, Cursor, LangChain), connect to `https://filesystem-fawn.vercel.app/mcp`. Agents use these tools to discover and use context dynamically — list, search, read, and write memory as files. Bossa exposes **7 tools** via MCP.
 
 | Tool | What it does |
 |------|--------------|
@@ -115,6 +138,8 @@ All endpoints under `/api/v1`. Base URL: `https://filesystem-fawn.vercel.app`.
 | `GET` | `/api/v1/files?path=...` | Read a file |
 | `GET` | `/api/v1/files/list?path=...` | List directory contents |
 | `POST` | `/api/v1/files/search` | Grep search |
+| `GET` | `/api/v1/files/glob?pattern=...&path=...` | Glob search |
+| `PATCH` | `/api/v1/files` | Edit file (replace substring) |
 | `DELETE` | `/api/v1/files?path=...` | Delete a file |
 
 Full reference: [docs/REST_API.md](docs/REST_API.md).
@@ -123,7 +148,17 @@ Full reference: [docs/REST_API.md](docs/REST_API.md).
 
 ## Examples
 
-### Interactive chat
+### CLI (agent subprocess)
+
+```bash
+export BOSSA_API_KEY=your-api-key
+export BOSSA_CLI_JSON=1   # JSON output for agents
+bossa files ls /
+bossa files read /memory/summary.md
+echo "New content" | bossa files write /memory/note.txt
+```
+
+### Interactive chat (MCP, discover context dynamically)
 
 ```bash
 export BOSSA_API_URL=https://filesystem-fawn.vercel.app
@@ -132,7 +167,7 @@ export OPENAI_API_KEY=sk-...
 python examples/chat.py
 ```
 
-### Scripted agent (LangChain)
+### Scripted agent (LangChain + MCP)
 
 ```python
 from langchain_mcp_adapters.client import MultiServerMCPClient

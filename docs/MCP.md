@@ -4,6 +4,8 @@ Bossa exposes a virtual filesystem via **MCP** (Model Context Protocol). Connect
 
 **MCP endpoint:** `https://filesystem-fawn.vercel.app/mcp`
 
+**Alternative:** If your agent harness runs tools as subprocesses (CLI-based), use the Bossa CLI instead: `bossa files ls`, `read`, `write`, `grep`, `glob`, `edit`, `delete` with `--json` or `BOSSA_CLI_JSON=1`. See [CLI Reference](./CLI.md).
+
 ---
 
 ## Authentication
