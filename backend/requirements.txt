@@ -1,0 +1,10 @@
+fastmcp
+fastapi
+uvicorn[standard]
+asyncpg
+pydantic
+pydantic-settings
+python-dotenv
+pytest
+pytest-asyncio
+httpx

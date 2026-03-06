@@ -1,0 +1,30 @@
+# Bossa Example Agent
+
+A LangChain agent that connects to the Bossa MCP server and performs context discovery.
+
+## Prerequisites
+
+1. Bossa backend running: `cd backend && uvicorn src.main:app --reload`
+2. Seed data: `cd backend && python seed.py`
+3. Anthropic API key
+
+## Setup
+
+```bash
+cd examples
+pip install -r requirements.txt
+cp .env.example .env
+# Edit .env and add your OPENAI_API_KEY
+```
+
+## Run
+
+```bash
+python agent.py
+```
+
+The agent will:
+1. Explore the filesystem with `ls`
+2. Search for Enterprise customers with `grep`
+3. Read customer profiles with `read_file`
+4. Save analysis with `write_file`
