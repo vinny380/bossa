@@ -1,7 +1,13 @@
+import os
+
 import pytest
 from dotenv import load_dotenv
 
 load_dotenv("backend/.env")
+# Allow anonymous access in tests (in-process MCP has no HTTP headers)
+os.environ.setdefault("REQUIRE_API_KEY", "false")
+# Allow sk-default for API tests
+os.environ.setdefault("ALLOW_DEFAULT_KEY", "true")
 
 
 @pytest.fixture

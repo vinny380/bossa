@@ -22,8 +22,8 @@ async def main() -> None:
     client = MultiServerMCPClient(
         {
             "bossa": {
-                "url": "http://localhost:8000/mcp",
-                "transport": "http",
+                "url": os.environ.get("BOSSA_URL", "http://localhost:8000/mcp"),
+                "transport": "streamable_http",
                 "headers": _bossa_headers(),
             }
         }

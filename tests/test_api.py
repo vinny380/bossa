@@ -6,8 +6,21 @@ from src.main import app
 @pytest.fixture
 async def api_client():
     transport = ASGITransport(app=app)
-    async with AsyncClient(transport=transport, base_url="http://test") as client:
+    headers = {"Authorization": "Bearer sk-default"}
+    async with AsyncClient(
+        transport=transport, base_url="http://test", headers=headers
+    ) as client:
         yield client
+
+
+@pytest.mark.asyncio
+async def test_health_returns_ok(api_client: AsyncClient) -> None:
+    """GET /health returns app health and DB status."""
+    response = await api_client.get("/health")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "ok"
+    assert data["database"] == "ok"
 
 
 @pytest.mark.asyncio
@@ -149,6 +162,21 @@ async def test_delete_files_removes_file(api_client: AsyncClient) -> None:
         "/api/v1/files", params={"path": "/test/api-delete.txt"}
     )
     assert get_response.status_code == 404 or "not found" in get_response.text.lower()
+
+
+@pytest.mark.asyncio
+async def test_missing_api_key_returns_401(monkeypatch) -> None:
+    """Missing API key returns 401 when API key is required."""
+    from src import config
+
+    monkeypatch.setattr(config.settings, "require_api_key", True)
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        response = await client.get(
+            "/api/v1/files",
+            params={"path": "/"},
+        )
+    assert response.status_code == 401
 
 
 @pytest.mark.asyncio
