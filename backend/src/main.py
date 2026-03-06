@@ -1,7 +1,6 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-
 from src.api.router import api_router
 from src.db import close_pool
 from src.mcp.server import mcp

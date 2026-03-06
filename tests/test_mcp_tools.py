@@ -1,6 +1,5 @@
 import pytest
 from fastmcp import Client
-
 from src.mcp.server import mcp
 
 
@@ -88,7 +87,12 @@ async def test_mcp_grep_supports_pagination(mcp_client: Client) -> None:
     )
     result = await mcp_client.call_tool(
         "grep",
-        {"pattern": "hit", "path": "/test/mcp-grep-page/", "max_matches": 2, "offset": 0},
+        {
+            "pattern": "hit",
+            "path": "/test/mcp-grep-page/",
+            "max_matches": 2,
+            "offset": 0,
+        },
     )
     data = result.data if hasattr(result, "data") else result
     payload = data if isinstance(data, dict) else data[0]

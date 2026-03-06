@@ -1,13 +1,6 @@
 import pytest
-from src.engine.filesystem import (
-    ls,
-    read_file,
-    write_file, 
-    edit_file,
-    grep,
-    glob_search,
-    delete_file,
-)
+from src.engine.filesystem import (delete_file, edit_file, glob_search, grep,
+                                   ls, read_file, write_file)
 
 
 @pytest.fixture
@@ -237,7 +230,9 @@ async def test_glob_search_absolute_pattern_ignores_base_path(
     await write_file(workspace_id, "/test/glob-abs/tickets/ticket-001.md", "a")
     await write_file(workspace_id, "/test/glob-abs/customers/acme.md", "b")
     result = await glob_search(
-        workspace_id, "/test/glob-abs/tickets/*.md", base_path="/test/glob-abs/customers/"
+        workspace_id,
+        "/test/glob-abs/tickets/*.md",
+        base_path="/test/glob-abs/customers/",
     )
     assert "/test/glob-abs/tickets/ticket-001.md" in result
     assert "/test/glob-abs/customers/acme.md" not in result

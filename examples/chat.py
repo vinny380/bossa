@@ -1,4 +1,5 @@
 """Interactive chat agent connected to Bossa MCP server."""
+
 import asyncio
 import os
 
@@ -6,9 +7,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+from langchain.agents import create_agent
 from langchain_core.messages import HumanMessage
 from langchain_mcp_adapters.client import MultiServerMCPClient
-from langchain.agents import create_agent
 
 
 def _bossa_headers() -> dict[str, str]:
@@ -19,17 +20,21 @@ def _bossa_headers() -> dict[str, str]:
 
 async def main() -> None:
     print("Connecting to Bossa...")
-    client = MultiServerMCPClient({
-        "bossa": {
-            "url": "http://localhost:8000/mcp",
-            "transport": "http",
-            "headers": _bossa_headers(),
+    client = MultiServerMCPClient(
+        {
+            "bossa": {
+                "url": "http://localhost:8000/mcp",
+                "transport": "http",
+                "headers": _bossa_headers(),
+            }
         }
-    })
+    )
     tools = await client.get_tools()
     agent = create_agent("openai:gpt-4o", tools)
 
-    print("\nBossa chat ready. You have access to the filesystem (ls, read_file, write_file, grep, etc.).")
+    print(
+        "\nBossa chat ready. You have access to the filesystem (ls, read_file, write_file, grep, etc.)."
+    )
     print("Type your message and press Enter. 'quit' or 'exit' to stop.\n")
 
     messages = []
@@ -55,7 +60,11 @@ async def main() -> None:
         # Print the last assistant message
         for msg in reversed(response["messages"]):
             msg_type = getattr(msg, "type", "") or type(msg).__name__
-            if msg_type.lower() in ("ai", "aimessage") and hasattr(msg, "content") and msg.content:
+            if (
+                msg_type.lower() in ("ai", "aimessage")
+                and hasattr(msg, "content")
+                and msg.content
+            ):
                 text = msg.content
                 if isinstance(text, list):
                     text = " ".join(

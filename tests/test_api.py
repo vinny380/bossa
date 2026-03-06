@@ -1,6 +1,5 @@
 import pytest
 from httpx import ASGITransport, AsyncClient
-
 from src.main import app
 
 
@@ -20,7 +19,11 @@ async def test_post_files_creates_file(api_client: AsyncClient) -> None:
     )
     assert response.status_code == 200
     data = response.json()
-    assert "path" in data or "content" in data or data.get("path") == "/test/api-create.txt"
+    assert (
+        "path" in data
+        or "content" in data
+        or data.get("path") == "/test/api-create.txt"
+    )
 
 
 @pytest.mark.asyncio
@@ -30,7 +33,9 @@ async def test_get_files_reads_file(api_client: AsyncClient) -> None:
         "/api/v1/files",
         json={"path": "/test/api-read.txt", "content": "read me"},
     )
-    response = await api_client.get("/api/v1/files", params={"path": "/test/api-read.txt"})
+    response = await api_client.get(
+        "/api/v1/files", params={"path": "/test/api-read.txt"}
+    )
     assert response.status_code == 200
     data = response.json()
     assert "read me" in str(data.get("content", data))
@@ -107,7 +112,10 @@ async def test_post_files_search_supports_pagination_and_metadata(
     """POST /api/v1/files/search paginates match results."""
     await api_client.post(
         "/api/v1/files",
-        json={"path": "/test/search-page/search-page.txt", "content": "hit one\nhit two\nhit three"},
+        json={
+            "path": "/test/search-page/search-page.txt",
+            "content": "hit one\nhit two\nhit three",
+        },
     )
     response = await api_client.post(
         "/api/v1/files/search",

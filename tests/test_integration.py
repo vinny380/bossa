@@ -1,8 +1,8 @@
 """End-to-end: write via REST, read via MCP, grep across both."""
+
 import pytest
 from fastmcp import Client
 from httpx import ASGITransport, AsyncClient
-
 from src.main import app
 from src.mcp.server import mcp
 
@@ -25,7 +25,9 @@ async def test_write_via_rest_read_via_mcp() -> None:
         assert "shared content" in str(data)
 
     async with AsyncClient(transport=transport, base_url="http://test") as http_client:
-        await http_client.delete("/api/v1/files", params={"path": "/integration/shared.txt"})
+        await http_client.delete(
+            "/api/v1/files", params={"path": "/integration/shared.txt"}
+        )
 
 
 @pytest.mark.asyncio

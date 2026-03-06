@@ -1,6 +1,6 @@
 """Tests for auth module."""
-import pytest
 
+import pytest
 from src.auth import resolve_workspace_id
 
 

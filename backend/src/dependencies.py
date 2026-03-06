@@ -1,6 +1,6 @@
 """FastAPI dependencies."""
-from fastapi import Header, HTTPException
 
+from fastapi import Header, HTTPException
 from src.auth import resolve_workspace_id
 
 

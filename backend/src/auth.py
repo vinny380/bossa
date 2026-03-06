@@ -1,4 +1,5 @@
 """Resolve API key to workspace_id."""
+
 import hashlib
 
 from src.config import settings

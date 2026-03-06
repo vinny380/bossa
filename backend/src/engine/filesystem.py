@@ -1,8 +1,9 @@
 import re
 from typing import Literal
 
-from src.db import fetch_one, fetch_all, execute
-from src.engine.path_utils import escape_for_like, glob_to_sql_like, normalize_path
+from src.db import execute, fetch_all, fetch_one
+from src.engine.path_utils import (escape_for_like, glob_to_sql_like,
+                                   normalize_path)
 from src.models import GrepMatch, GrepSearchRequest, GrepSearchResponse
 
 
@@ -180,7 +181,10 @@ def _sql_match_clause(
     case_sensitive: bool,
 ) -> tuple[str, str]:
     if regex:
-        return (f"{field} {'~' if case_sensitive else '~*'} ${placeholder}", search_term)
+        return (
+            f"{field} {'~' if case_sensitive else '~*'} ${placeholder}",
+            search_term,
+        )
     operator = "LIKE" if case_sensitive else "ILIKE"
     return (f"{field} {operator} ${placeholder}", f"%{search_term}%")
 
@@ -275,10 +279,10 @@ async def grep(
                     path=file_path,
                     line_number=index + 1,
                     line=line,
-                    context_before=lines[max(0, index - request.context_before) : index],
-                    context_after=lines[
-                        index + 1 : index + 1 + request.context_after
+                    context_before=lines[
+                        max(0, index - request.context_before) : index
                     ],
+                    context_after=lines[index + 1 : index + 1 + request.context_after],
                 )
             )
 

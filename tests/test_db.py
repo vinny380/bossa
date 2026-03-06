@@ -1,5 +1,5 @@
 import pytest
-from src.db import fetch_one, fetch_all, execute
+from src.db import execute, fetch_all, fetch_one
 
 
 @pytest.mark.asyncio

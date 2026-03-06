@@ -1,4 +1,5 @@
 """Seed a workspace with sample files for context discovery demo."""
+
 import argparse
 import asyncio
 import os
@@ -13,50 +14,75 @@ from src.config import settings
 from src.engine import filesystem as fs
 
 FILES = [
-    ("/customers/acme-corp/profile.md", """# Acme Corp
+    (
+        "/customers/acme-corp/profile.md",
+        """# Acme Corp
 
 **Tier:** Enterprise
 **Contact:** john@acme.com
-**Notes:** Interested in API access. Key decision maker."""),
-    ("/customers/globex/profile.md", """# Globex Inc
+**Notes:** Interested in API access. Key decision maker.""",
+    ),
+    (
+        "/customers/globex/profile.md",
+        """# Globex Inc
 
 **Tier:** Starter
 **Contact:** jane@globex.com
-**Notes:** Evaluating options. Budget-conscious."""),
-    ("/customers/initech/profile.md", """# Initech
+**Notes:** Evaluating options. Budget-conscious.""",
+    ),
+    (
+        "/customers/initech/profile.md",
+        """# Initech
 
 **Tier:** Enterprise
 **Contact:** michael@initech.com
-**Notes:** Large team. Needs SSO integration."""),
-    ("/tickets/2024/march/ticket-001.md", """# Ticket 001
+**Notes:** Large team. Needs SSO integration.""",
+    ),
+    (
+        "/tickets/2024/march/ticket-001.md",
+        """# Ticket 001
 
 **Customer:** Acme Corp
 **Subject:** Pricing objection
-**Content:** Customer raised concerns about enterprise pricing. Discussed volume discounts."""),
-    ("/tickets/2024/march/ticket-002.md", """# Ticket 002
+**Content:** Customer raised concerns about enterprise pricing. Discussed volume discounts.""",
+    ),
+    (
+        "/tickets/2024/march/ticket-002.md",
+        """# Ticket 002
 
 **Customer:** Globex Inc
 **Subject:** Onboarding
-**Content:** New customer onboarding. Setup call scheduled."""),
-    ("/docs/product-overview.md", """# Product Overview
+**Content:** New customer onboarding. Setup call scheduled.""",
+    ),
+    (
+        "/docs/product-overview.md",
+        """# Product Overview
 
-Bossa is a cloud-hosted filesystem for AI agents. It provides context discovery through familiar filesystem operations."""),
-    ("/docs/api-reference.md", """# API Reference
+Bossa is a cloud-hosted filesystem for AI agents. It provides context discovery through familiar filesystem operations.""",
+    ),
+    (
+        "/docs/api-reference.md",
+        """# API Reference
 
 ## Files
 - POST /api/v1/files - Create or overwrite
 - GET /api/v1/files?path=... - Read
-- DELETE /api/v1/files?path=... - Delete"""),
-    ("/memory/README.md", """# Agent Scratchpad
+- DELETE /api/v1/files?path=... - Delete""",
+    ),
+    (
+        "/memory/README.md",
+        """# Agent Scratchpad
 
-Write notes and analysis here. Agents can use this for session memory."""),
+Write notes and analysis here. Agents can use this for session memory.""",
+    ),
 ]
 
 
 async def main() -> None:
     parser = argparse.ArgumentParser(description="Seed a workspace with sample files")
     parser.add_argument(
-        "-k", "--key",
+        "-k",
+        "--key",
         help="API key for the workspace to seed (default: default workspace)",
     )
     args = parser.parse_args()

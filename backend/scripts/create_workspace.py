@@ -1,4 +1,5 @@
 """Create a new workspace and API key. Usage: python scripts/create_workspace.py [name]"""
+
 import asyncio
 import hashlib
 import os

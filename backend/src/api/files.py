@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, HTTPException
-
 from src.dependencies import get_workspace_id
 from src.engine import filesystem as fs
 from src.models import FileCreate, GrepSearchRequest
@@ -60,9 +59,7 @@ async def search_files(
 
 
 @router.delete("")
-async def remove_file(
-    path: str, workspace_id: str = Depends(get_workspace_id)
-) -> dict:
+async def remove_file(path: str, workspace_id: str = Depends(get_workspace_id)) -> dict:
     """Delete a file."""
     await fs.delete_file(workspace_id, path)
     return {"path": path, "deleted": True}

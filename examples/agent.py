@@ -1,4 +1,5 @@
 """LangChain agent that connects to Bossa MCP server and does context discovery."""
+
 import asyncio
 import os
 
@@ -6,9 +7,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+from langchain.agents import create_agent
 from langchain_core.messages import HumanMessage
 from langchain_mcp_adapters.client import MultiServerMCPClient
-from langchain.agents import create_agent
 
 
 def _bossa_headers() -> dict[str, str]:
@@ -18,13 +19,15 @@ def _bossa_headers() -> dict[str, str]:
 
 
 async def main() -> None:
-    client = MultiServerMCPClient({
-        "bossa": {
-            "url": "http://localhost:8000/mcp",
-            "transport": "http",
-            "headers": _bossa_headers(),
+    client = MultiServerMCPClient(
+        {
+            "bossa": {
+                "url": "http://localhost:8000/mcp",
+                "transport": "http",
+                "headers": _bossa_headers(),
+            }
         }
-    })
+    )
     tools = await client.get_tools()
 
     agent = create_agent("openai:gpt-4o", tools)
@@ -40,7 +43,7 @@ async def main() -> None:
     for query in queries:
         print(f"\n{'='*60}")
         print(f"USER: {query}")
-        print("="*60)
+        print("=" * 60)
         messages.append(HumanMessage(content=query))
         response = await agent.ainvoke({"messages": messages})
         for msg in response["messages"]:

@@ -13,4 +13,5 @@ def default_workspace_id() -> str:
 async def cleanup_db_pool() -> None:
     yield
     from src.db import close_pool
+
     await close_pool()
