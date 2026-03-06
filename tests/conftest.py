@@ -3,7 +3,9 @@ import os
 import pytest
 from dotenv import load_dotenv
 
-load_dotenv("backend/.env")
+from pathlib import Path
+
+load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 # Allow anonymous access in tests (in-process MCP has no HTTP headers)
 os.environ.setdefault("REQUIRE_API_KEY", "false")
 # Allow sk-default for API tests

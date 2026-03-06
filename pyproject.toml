@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bossa"
+version = "0.1.0"
+description = "Virtual filesystem for AI agents, backed by Postgres"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    # Backend (Vercel, API, MCP)
+    "fastmcp",
+    "fastapi",
+    "uvicorn[standard]",
+    "asyncpg",
+    "pydantic",
+    "pydantic-settings",
+    "python-dotenv",
+    "pyjwt",
+    "cryptography",
+    # CLI
+    "typer",
+    "rich",
+    "supabase",
+    "httpx",
+]
+
+[project.scripts]
+bossa = "cli.main:main"
+
+[tool.setuptools.packages.find]
+include = ["cli*"]
