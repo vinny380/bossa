@@ -1,6 +1,11 @@
+---
+title: "Self-Hosting"
+description: "Run Bossa on your own infrastructure. Docker, Supabase, Vercel."
+---
+
 # Self-Hosting Bossa
 
-Run Bossa on your own infrastructure. For most users, the [managed service](../README.md#get-started) is simpler — no Postgres, migrations, or deployment to manage.
+Run Bossa on your own infrastructure. For most users, the [managed service](index#why-bossa) is simpler — no Postgres, migrations, or deployment to manage.
 
 **When self-hosting:** CLI users must set `BOSSA_API_URL` to your deployment URL and `SUPABASE_URL` + `SUPABASE_ANON_KEY` (your Supabase project) so the CLI can authenticate.
 

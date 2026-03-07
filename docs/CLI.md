@@ -1,3 +1,8 @@
+---
+title: "CLI Reference"
+description: "Full command reference for auth, workspaces, keys, and filesystem operations."
+---
+
 # Bossa CLI Reference
 
 The Bossa CLI manages accounts, workspaces, API keys, and provides full filesystem access. It is a first-class interface for agents — when your harness runs tools as subprocesses, use `bossa files` for the same operations as MCP.
@@ -169,4 +174,4 @@ bossa files upload <local_path> [--target /prefix] [--include-hidden]
 | CLI-based harnesses (beads, etc.) | You want native tool integration |
 | You need `--help` discovery | You use MCP tool descriptors |
 
-Both expose the same filesystem operations. See [Agent Integration](./AGENT_INTEGRATION.md) for examples.
+Both expose the same filesystem operations. See [Agent Integration](AGENT_INTEGRATION) for examples.

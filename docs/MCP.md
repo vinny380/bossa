@@ -1,10 +1,15 @@
+---
+title: "MCP Integration"
+description: "Connect Claude, Cursor, LangChain, or any MCP client to Bossa."
+---
+
 # MCP Integration
 
 Bossa exposes a virtual filesystem via **MCP** (Model Context Protocol). Connect Claude Desktop, Cursor, LangChain, or any MCP-compatible client to use `ls`, `read_file`, `write_file`, `grep`, `glob_search`, `edit_file`, and `delete_file`.
 
 **MCP endpoint:** `https://filesystem-fawn.vercel.app/mcp`
 
-**Alternative:** If your agent harness runs tools as subprocesses (CLI-based), use the Bossa CLI instead: `bossa files ls`, `read`, `write`, `grep`, `glob`, `edit`, `delete` with `--json` or `BOSSA_CLI_JSON=1`. See [CLI Reference](./CLI.md).
+**Alternative:** If your agent harness runs tools as subprocesses (CLI-based), use the Bossa CLI instead: `bossa files ls`, `read`, `write`, `grep`, `glob`, `edit`, `delete` with `--json` or `BOSSA_CLI_JSON=1`. See [CLI Reference](CLI).
 
 ---
 
@@ -143,7 +148,7 @@ Search file contents with flexible options.
 Find files by glob pattern.
 
 - **pattern** (required): Glob (e.g. `**/*.md`, `/docs/*.txt`)
-- **base_path** (optional): Scope to subtree
+- **path** (optional): Scope to subtree (default: `/`)
 
 ### `delete_file`
 

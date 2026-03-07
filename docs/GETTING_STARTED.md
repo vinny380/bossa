@@ -1,3 +1,8 @@
+---
+title: "Getting Started"
+description: "Sign up, get an API key, and make your first request. CLI, MCP, or REST."
+---
+
 # Getting Started with Bossa (Managed Service)
 
 Use the Bossa managed service to give your apps and agents a virtual filesystem. No infrastructure to run — just sign up, get an API key, and start building.
@@ -94,7 +99,7 @@ bossa files ls /
 bossa files read /hello.txt
 ```
 
-See [CLI Reference](./CLI.md) for the full command reference.
+See [CLI Reference](CLI) for the full command reference.
 
 ### MCP (agent frameworks)
 
@@ -109,7 +114,7 @@ Pass your API key in headers:
 - `Authorization: Bearer YOUR_API_KEY`
 - `X-API-Key: YOUR_API_KEY`
 
-See [MCP Integration](./MCP.md) for client-specific setup.
+See [MCP Integration](MCP) for client-specific setup.
 
 ---
 
@@ -158,6 +163,6 @@ When your agent harness runs tools as subprocesses (e.g. CLI-based agents), use 
 
 ## Next Steps
 
-- [MCP Integration](./MCP.md) — Connect Claude, Cursor, LangChain
-- [REST API Reference](./REST_API.md) — Full endpoint documentation
-- [Agent Integration](./AGENT_INTEGRATION.md) — Build AI agents with Bossa tools
+- [MCP Integration](MCP) — Connect Claude, Cursor, LangChain
+- [REST API Reference](REST_API) — Full endpoint documentation
+- [Agent Integration](AGENT_INTEGRATION) — Build AI agents with Bossa tools

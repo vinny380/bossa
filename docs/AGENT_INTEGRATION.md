@@ -1,3 +1,8 @@
+---
+title: "Agent Integration Guide"
+description: "Build AI agents with Bossa. CLI and MCP examples, tool usage patterns."
+---
+
 # Agent Integration Guide
 
 This guide is for **AI agents** and **developers** building agents that use Bossa as a virtual filesystem. Use the managed service so your agents get persistent, searchable storage without running infrastructure.
@@ -9,7 +14,7 @@ This guide is for **AI agents** and **developers** building agents that use Boss
 
 ## Quick Start for Agents
 
-1. **Get an API key** — Sign up via the Bossa CLI, create a workspace, create a key. See [Getting Started](./GETTING_STARTED.md).
+1. **Get an API key** — Sign up via the Bossa CLI, create a workspace, create a key. See [Getting Started](GETTING_STARTED).
 
 2. **Choose your interface:**
    - **CLI** — If your agent runs tools as subprocesses (CLI-based harnesses, beads), use `bossa files ls`, `read`, `write`, `grep`, `glob`, `edit`, `delete`. Set `BOSSA_CLI_JSON=1` for JSON output.
@@ -137,4 +142,4 @@ bossa files edit /config.json --old '"debug": false' --new '"debug": true'
 
 ## Workspace Isolation
 
-Each API key maps to one workspace. Agents using key A cannot see or modify files in workspace B. See [MCP Integration](./MCP.md#workspace-isolation) for details.
+Each API key maps to one workspace. Agents using key A cannot see or modify files in workspace B. See [MCP Integration](MCP#workspace-isolation) for details.

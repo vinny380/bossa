@@ -1,0 +1,67 @@
+---
+title: "Introduction"
+description: "The memory layer for your agents. Persistent, searchable storage — backed by Postgres, exposed as a filesystem."
+mode: "wide"
+---
+
+# Bossa
+
+The memory layer for your agents. Persistent, workspace-scoped filesystem — `ls`, `read`, `write`, `grep`, `glob` backed by Postgres.
+
+<Callout icon="leaf" color="#16A34A">
+**Base URL:** `https://filesystem-fawn.vercel.app` · No infrastructure to run. Sign up, get an API key, start building.
+</Callout>
+
+## Why Bossa?
+
+<Columns cols={2}>
+  <Card title="Memory as filesystem" icon="folder" href="/GETTING_STARTED">
+    Agents understand files. Use familiar operations — no new abstractions.
+  </Card>
+  <Card title="Dynamic context discovery" icon="search" href="/AGENT_INTEGRATION">
+    Search at runtime. Find what matters without packing static prompts.
+  </Card>
+  <Card title="CLI + MCP + REST" icon="terminal" href="/MCP">
+    Subprocess agents, Claude/Cursor/LangChain, or scripts.
+  </Card>
+  <Card title="Workspace isolation" icon="lock" href="/GETTING_STARTED">
+    Each agent gets its own space, scoped by API key.
+  </Card>
+</Columns>
+
+## Quick start
+
+<Steps>
+  <Step title="Sign up">
+    [Create an account](GETTING_STARTED#2-sign-up--log-in) via the CLI
+  </Step>
+  <Step title="Create workspace & key">
+    [Create a workspace and API key](GETTING_STARTED#3-create-a-workspace--api-key)
+  </Step>
+  <Step title="Connect">
+    [Make your first request](GETTING_STARTED#4-make-your-first-request) via MCP or REST
+  </Step>
+</Steps>
+
+## Documentation
+
+<Columns cols={2}>
+  <Card title="Getting Started" icon="rocket" href="/GETTING_STARTED">
+    Sign up, API key, first request.
+  </Card>
+  <Card title="CLI Reference" icon="terminal" href="/CLI">
+    Auth, workspaces, keys, files.
+  </Card>
+  <Card title="MCP Integration" icon="puzzle" href="/MCP">
+    Claude, Cursor, LangChain.
+  </Card>
+  <Card title="REST API" icon="code" href="/REST_API">
+    Endpoint reference.
+  </Card>
+  <Card title="Agent Integration" icon="robot" href="/AGENT_INTEGRATION">
+    Examples and patterns.
+  </Card>
+  <Card title="Self-Hosting" icon="server" href="/SELF_HOSTING">
+    Run on your infrastructure.
+  </Card>
+</Columns>

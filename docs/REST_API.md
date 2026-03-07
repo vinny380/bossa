@@ -1,3 +1,8 @@
+---
+title: "REST API Reference"
+description: "Full endpoint documentation for all filesystem operations."
+---
+
 # REST API Reference
 
 Bossa exposes a REST API for all filesystem operations. Use it when MCP isn't available or when building custom integrations.

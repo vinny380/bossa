@@ -1,38 +1,96 @@
 {
-"$schema": "https://mintlify.com/docs.json",
-"theme": "mint",
-"name": "Bossa",
-"description": "Virtual filesystem for apps and agents",
-"colors": {
-    "primary": "#3B82F6"
-},
-"navigation": [
-    {
-    "group": "Getting Started",
-    "pages": [
-        "README",
-        "GETTING_STARTED"
-    ]
-    },
-    {
-    "group": "Reference",
-    "pages": [
-        "CLI",
-        "REST_API",
-        "MCP"
-    ]
-    },
-    {
-    "group": "Integration",
-    "pages": [
-        "AGENT_INTEGRATION"
-    ]
-    },
-    {
-    "group": "Deployment",
-    "pages": [
-        "SELF_HOSTING"
-    ]
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Bossa",
+  "description": "The memory layer for your agents. Persistent, searchable storage — backed by Postgres, exposed as a filesystem.",
+  "colors": {
+    "primary": "#16A34A",
+    "light": "#FACC15",
+    "dark": "#15803D"
+  },
+  "fonts": {
+    "heading": { "family": "Inter" },
+    "body": { "family": "Inter" }
+  },
+  "background": {
+    "color": {
+      "light": "#F7FDF7",
+      "dark": "#0A0F0A"
     }
-]
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Get Started",
+        "href": "/GETTING_STARTED"
+      },
+      {
+        "label": "API",
+        "href": "/REST_API"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Try Bossa",
+      "href": "https://filesystem-fawn.vercel.app"
+    }
+  },
+  "footer": {
+    "links": [
+      {
+        "header": "Documentation",
+        "items": [
+          { "label": "Getting Started", "href": "/GETTING_STARTED" },
+          { "label": "CLI Reference", "href": "/CLI" },
+          { "label": "REST API", "href": "/REST_API" }
+        ]
+      },
+      {
+        "header": "Integration",
+        "items": [
+          { "label": "MCP", "href": "/MCP" },
+          { "label": "Agent Integration", "href": "/AGENT_INTEGRATION" }
+        ]
+      }
+    ]
+  },
+  "navigation": {
+    "groups": [
+      {
+        "group": "Getting Started",
+        "icon": "rocket",
+        "pages": ["index", "GETTING_STARTED"]
+      },
+      {
+        "group": "Reference",
+        "icon": "book-open",
+        "pages": ["CLI", "REST_API", "MCP"]
+      },
+      {
+        "group": "Integration",
+        "icon": "puzzle",
+        "pages": ["AGENT_INTEGRATION"]
+      },
+      {
+        "group": "Deployment",
+        "icon": "server",
+        "pages": ["SELF_HOSTING"]
+      }
+    ]
+  },
+  "styling": {
+    "eyebrows": "section",
+    "codeblocks": {
+      "theme": {
+        "light": "min-light",
+        "dark": "min-dark"
+      }
+    }
+  },
+  "appearance": {
+    "default": "system"
+  },
+  "metadata": {
+    "timestamp": true
+  }
 }
