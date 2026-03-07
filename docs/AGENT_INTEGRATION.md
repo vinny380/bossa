@@ -5,7 +5,7 @@ description: "Build AI agents with Bossa. CLI and MCP examples, tool usage patte
 
 # Agent Integration Guide
 
-This guide is for **AI agents** and **developers** building agents that use Bossa as a virtual filesystem. Use the managed service so your agents get persistent, searchable storage without running infrastructure.
+This guide is for **AI agents** and **developers** building agents that need long-term memory. Bossa gives your agents a persistent filesystem to store and retrieve context across sessions—as simple as files, as powerful as Postgres. Use the managed service so your agents get persistent, searchable storage without running infrastructure.
 
 **Base URL:** `https://filesystem-fawn.vercel.app`  
 **MCP endpoint:** `https://filesystem-fawn.vercel.app/mcp`
@@ -83,7 +83,7 @@ asyncio.run(main())
 
 ## Tool Usage Patterns
 
-These patterns apply to both MCP tools and CLI commands. MCP uses `read_file`; CLI uses `bossa files read`.
+These patterns apply to both MCP tools and CLI commands. MCP uses `read_file`; CLI uses `bossa files read`. They are examples of [dynamic context discovery](DYNAMIC_CONTEXT_DISCOVERY)—pulling only the context you need, when you need it.
 
 ### Explore Before Reading
 

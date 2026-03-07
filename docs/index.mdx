@@ -1,33 +1,106 @@
 ---
 title: "Introduction"
-description: "The memory layer for your agents. Persistent, searchable storage — backed by Postgres, exposed as a filesystem."
+description: "Your AI agent's long-term memory. Remember everything. As simple as files, as powerful as Postgres."
 mode: "wide"
 ---
 
-# Bossa
+# Your AI Agent's Long-Term Memory
 
-The memory layer for your agents. Persistent, workspace-scoped filesystem — `ls`, `read`, `write`, `grep`, `glob` backed by Postgres.
+Remember every conversation. Search instantly. Never repeat yourself.
+
+Bossa gives your AI agents a persistent filesystem to store and retrieve context across sessions—just like Claude Code and Manus do.
 
 <Callout icon="leaf" color="#16A34A">
 **Install:** `pip install bossa-memory` · **Base URL:** `https://filesystem-fawn.vercel.app` · No infrastructure to run. Sign up, get an API key, start building.
 </Callout>
 
+Used by agents built with Claude, LangChain, Cursor, and AutoGPT.
+
+---
+
+## The Problem: Agents Forget Everything
+
+Every time your agent starts, it's like Groundhog Day:
+
+- Re-learning user preferences every session
+- Asking the same questions over and over
+- No memory of previous work or context
+- RAG pipelines that are complex and brittle
+
+**Claude Code and Manus solved this with filesystems.** Now you can too.
+
+---
+
+## Why Filesystem Over RAG?
+
+Leading agent platforms like Claude Code and Manus chose filesystems over traditional RAG pipelines. Here's why:
+
+| Filesystem (Bossa) | Traditional RAG |
+|--------------------|-----------------|
+| `grep "user preferences"` | Tune embeddings, pray it works |
+| Directory structure = organization | Flat vector space |
+| Works like CLI tools agents know | New abstractions to learn |
+| Debuggable with `ls`, `cat` | Black box retrieval |
+| No embedding drift | Constant re-indexing |
+
+**For 80% of agent use cases, filesystems just work better.**
+
+[Read: Why We Chose Filesystem Over RAG →](/WHY_FILESYSTEM)
+
+---
+
 ## Why Bossa?
 
-<Columns cols={2}>
-  <Card title="Memory as filesystem" icon="folder" href="/GETTING_STARTED">
-    Agents understand files. Use familiar operations — no new abstractions.
+### Feels Like Local Files
+
+```bash
+bossa files ls /memory
+bossa files read /user/preferences.json
+bossa files grep "project alpha"
+```
+
+Just standard filesystem operations. No new concepts.
+
+### Powered by Postgres
+
+- Full-text search with trigrams
+- ACID transactions
+- JSON storage
+- Enterprise-ready
+
+### Plug-and-Play
+
+| Platform | How to connect |
+|----------|----------------|
+| **Terminal** | `export BOSSA_API_KEY=sk-xxx` then `bossa files ls /` |
+| **LangChain** | Add Bossa MCP server to `MultiServerMCPClient` |
+| **Claude / Cursor** | Add MCP server URL + API key in headers |
+
+One line of code. That's it.
+
+### Your Agent's Personal File System
+
+Each agent gets its own space, scoped by API key. No cross-tenant leakage.
+
+---
+
+## What Can You Build?
+
+<Columns cols={3}>
+  <Card title="Personal AI Assistant" icon="user" href="/USE_CASES">
+    Remember preferences, past conversations, and project context.
   </Card>
-  <Card title="Dynamic context discovery" icon="search" href="/AGENT_INTEGRATION">
-    Search at runtime. Find what matters without packing static prompts.
+  <Card title="Customer Support Agent" icon="headphones" href="/USE_CASES">
+    Never ask a customer the same question twice.
   </Card>
-  <Card title="CLI + MCP + REST" icon="terminal" href="/MCP">
-    Subprocess agents, Claude/Cursor/LangChain, or scripts.
-  </Card>
-  <Card title="Workspace isolation" icon="lock" href="/GETTING_STARTED">
-    Each agent gets its own space, scoped by API key.
+  <Card title="Research Agent" icon="book-open" href="/USE_CASES">
+    Build up a knowledge base over weeks of research.
   </Card>
 </Columns>
+
+[See More Examples →](/USE_CASES)
+
+---
 
 ## Quick start
 
@@ -43,11 +116,30 @@ The memory layer for your agents. Persistent, workspace-scoped filesystem — `l
   </Step>
 </Steps>
 
+---
+
+## Docs MCP
+
+Give your AI assistant (Cursor, VS Code, Claude) direct access to the Bossa documentation. Use the contextual menu at the top of any page for **one-click Connect to Cursor** or **Connect to VS Code** — or follow the [manual setup instructions](/ADD_DOCS_AS_MCP).
+
+[Add Docs to Your IDE →](/ADD_DOCS_AS_MCP)
+
+---
+
 ## Documentation
 
 <Columns cols={2}>
   <Card title="Getting Started" icon="rocket" href="/GETTING_STARTED">
     Sign up, API key, first request.
+  </Card>
+  <Card title="Why Filesystem?" icon="lightbulb" href="/WHY_FILESYSTEM">
+    Filesystem vs RAG — why we chose this approach.
+  </Card>
+  <Card title="Dynamic Context Discovery" icon="search" href="/DYNAMIC_CONTEXT_DISCOVERY">
+    How Bossa fits the context-engineering pattern used by Cursor and LangChain.
+  </Card>
+  <Card title="Docs as MCP" icon="cpu" href="/ADD_DOCS_AS_MCP">
+    Add Bossa docs to Cursor, VS Code, Claude.
   </Card>
   <Card title="CLI Reference" icon="terminal" href="/CLI">
     Auth, workspaces, keys, files.
@@ -60,6 +152,9 @@ The memory layer for your agents. Persistent, workspace-scoped filesystem — `l
   </Card>
   <Card title="Agent Integration" icon="robot" href="/AGENT_INTEGRATION">
     Examples and patterns.
+  </Card>
+  <Card title="Use Cases" icon="layers" href="/USE_CASES">
+    Personal assistant, support agent, research.
   </Card>
   <Card title="Self-Hosting" icon="server" href="/SELF_HOSTING">
     Run on your infrastructure.

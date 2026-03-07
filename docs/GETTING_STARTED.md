@@ -3,11 +3,25 @@ title: "Getting Started"
 description: "Sign up, get an API key, and make your first request. CLI, MCP, or REST."
 ---
 
-# Getting Started with Bossa (Managed Service)
+# Get Started in 30 Seconds
 
-Use the Bossa managed service to give your apps and agents a virtual filesystem. No infrastructure to run — just sign up, get an API key, and start building.
+Give your AI agent persistent memory so it remembers conversations, learns preferences, and builds up context over time—just like Claude Code does.
+
+No database setup. No vector embeddings. Just simple files that work.
 
 **Base URL:** `https://filesystem-fawn.vercel.app`
+
+---
+
+## What You'll Build
+
+By the end of this guide, you'll have an agent that:
+
+- Stores user preferences in `/user/prefs.json`
+- Searches past conversations with `grep`
+- Remembers context across sessions
+
+Let's go.
 
 ---
 

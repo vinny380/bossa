@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Bossa",
-  "description": "The memory layer for your agents. Persistent, searchable storage — backed by Postgres, exposed as a filesystem.",
+  "description": "Your AI agent's long-term memory. Remember everything. As simple as files, as powerful as Postgres.",
   "colors": {
     "primary": "#16A34A",
     "light": "#FACC15",
@@ -32,7 +32,7 @@
     "primary": {
       "type": "button",
       "label": "Try Bossa",
-      "href": "https://filesystem-fawn.vercel.app"
+      "href": "https://github.com/vinny380/bossa"
     }
   },
   "footer": {
@@ -59,7 +59,7 @@
       {
         "group": "Getting Started",
         "icon": "rocket",
-        "pages": ["index", "GETTING_STARTED"]
+        "pages": ["index", "GETTING_STARTED", "WHY_FILESYSTEM", "DYNAMIC_CONTEXT_DISCOVERY", "ADD_DOCS_AS_MCP"]
       },
       {
         "group": "Reference",
@@ -69,7 +69,7 @@
       {
         "group": "Integration",
         "icon": "puzzle",
-        "pages": ["AGENT_INTEGRATION"]
+        "pages": ["AGENT_INTEGRATION", "USE_CASES"]
       },
       {
         "group": "Deployment",
@@ -92,5 +92,12 @@
   },
   "metadata": {
     "timestamp": true
+  },
+  "contextual": {
+    "options": [
+      "mcp",
+      "cursor",
+      "vscode"
+    ]
   }
 }

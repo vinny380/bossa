@@ -1,17 +1,23 @@
 <p align="center">
   <h1 align="center">Bossa</h1>
   <p align="center">
-    <strong>The Memory Layer of Your Agents</strong>
+    <strong>Your AI Agent's Long-Term Memory</strong>
   </p>
   <p align="center">
-    Persistent, searchable memory — backed by Postgres, exposed as a filesystem. Give your agents <code>ls</code>, <code>read</code>, <code>write</code>, <code>grep</code>, and <code>glob</code> to store and recall knowledge across sessions.
+    Remember every conversation. Search instantly. Never repeat yourself.
+  </p>
+  <p align="center">
+    Bossa gives your AI agents a persistent filesystem to store and retrieve context across sessions—just like Claude Code and Manus do.
   </p>
   <p align="center">
     <strong>📖 <a href="https://bossa.mintlify.app">Documentation → bossa.mintlify.app</a></strong>
   </p>
   <p align="center">
+    Used by agents built with Claude, LangChain, Cursor, and AutoGPT.
+  </p>
+  <p align="center">
     <a href="#get-started">Get Started</a> &middot;
-    <a href="#dynamic-context-discovery">Dynamic Context Discovery</a> &middot;
+    <a href="#why-filesystem-over-rag">Why Filesystem?</a> &middot;
     <a href="#cli">CLI</a> &middot;
     <a href="#mcp-tools">MCP</a> &middot;
     <a href="#rest-api">REST API</a> &middot;
@@ -22,9 +28,40 @@
 
 ---
 
-## Why Bossa?
+## The Problem: Agents Forget Everything
 
-Agents need memory that persists across sessions and scales with search. Bossa is that memory layer — a **Postgres-backed virtual filesystem** exposed through **CLI**, **MCP** (Model Context Protocol), and **REST**. Your agents use familiar operations — `ls`, `read`, `grep`, `write` — while Bossa translates them to SQL with trigram indexes, full-text search, and workspace-scoped access control.
+Every time your agent starts, it's like Groundhog Day:
+
+- Re-learning user preferences every session
+- Asking the same questions over and over
+- No memory of previous work or context
+- RAG pipelines that are complex and brittle
+
+**Claude Code and Manus solved this with filesystems.** Now you can too.
+
+---
+
+## Why Filesystem Over RAG?
+
+Leading agent platforms like Claude Code and Manus chose filesystems over traditional RAG pipelines. Here's why:
+
+| Filesystem (Bossa) | Traditional RAG |
+|--------------------|------------------|
+| `grep "user preferences"` | Tune embeddings, pray it works |
+| Directory structure = organization | Flat vector space |
+| Works like CLI tools agents know | New abstractions to learn |
+| Debuggable with `ls`, `cat` | Black box retrieval |
+| No embedding drift | Constant re-indexing |
+
+**For 80% of agent use cases, filesystems just work better.**
+
+[Read: Why We Chose Filesystem Over RAG →](https://bossa.mintlify.app/WHY_FILESYSTEM)
+
+---
+
+## Simple API. Powerful Backend.
+
+Bossa is "Supabase for agent memory"—but simpler. Your agents use familiar operations—`ls`, `read`, `grep`, `write`—while Bossa translates them to SQL with trigram indexes, full-text search, and workspace-scoped access control.
 
 ```
 Agent  ──CLI──▶  Bossa  ──SQL──▶  Postgres
@@ -34,34 +71,22 @@ Agent  ──CLI──▶  Bossa  ──SQL──▶  Postgres
 
 **What you get:**
 
-- **Memory as filesystem** — Agents already understand files; no new abstractions. Use `ls`, `read`, `write`, `grep`, `glob`, `edit`, `delete`.
-- **Dynamic context discovery** — Search and explore at runtime instead of packing static prompts. Find what matters without reading everything.
-- **Workspace isolation** — Each agent or tenant gets its own memory space, scoped by API key.
-- **Fast search** — `grep` with boolean logic (`all_of`, `any_of`, `none_of`), regex, pagination, and context lines.
-- **CLI + MCP + REST** — Use the CLI when your agent runs subprocesses; use MCP when your harness supports it (LangChain, Claude, Cursor); use REST for scripts and custom integrations.
-
----
-
-## Dynamic Context Discovery
-
-Traditional **context engineering** means manually assembling prompts with the right docs, examples, and rules. It works, but it's brittle and doesn't scale — you have to guess what context matters upfront.
-
-**Dynamic context discovery** flips that: agents discover what they need at runtime. They `ls` to explore structure, `grep` to find relevant files, `read_file` only what matters. Bossa provides the searchable, persistent memory layer that makes this possible.
-
-```mermaid
-flowchart LR
-    Agent --> Discover[ls / grep / glob]
-    Discover --> Load[read_file]
-    Load --> Respond[Respond]
-```
-
-Instead of packing static prompts, let your agents discover context dynamically.
+- **Feels like local files** — `ls`, `read`, `write`, `grep`, `glob`, `edit`, `delete`. No new concepts.
+- **Powered by Postgres** — Full-text search with trigrams, ACID transactions, JSON storage, enterprise-ready.
+- **Plug-and-play** — CLI for subprocess agents; MCP for LangChain, Claude, Cursor; REST for scripts.
+- **Your agent's personal file system** — Each agent gets its own space, scoped by API key.
 
 ---
 
 ## Get Started
 
-**Use the managed service** — no infrastructure to run. Give your agents a memory layer and dynamic context discovery in minutes.
+**Get started in 30 seconds** — no infrastructure to run. Give your agents long-term memory in minutes.
+
+**What you'll build:**
+
+- Store user preferences in `/user/prefs.json`
+- Search past conversations with `grep`
+- Remember context across sessions
 
 | Step | Action |
 |------|--------|
@@ -76,12 +101,57 @@ Instead of packing static prompts, let your agents discover context dynamically.
 
 | Doc | Description |
 |-----|-------------|
-| [Getting Started](https://bossa.mintlify.app/GETTING_STARTED) | Sign up, API key, memory layer setup |
+| [Getting Started](https://bossa.mintlify.app/GETTING_STARTED) | Sign up, API key, first request |
 | [CLI Reference](https://bossa.mintlify.app/CLI) | Full CLI command reference |
 | [MCP Integration](https://bossa.mintlify.app/MCP) | Claude, Cursor, LangChain setup |
 | [REST API](https://bossa.mintlify.app/REST_API) | Full API reference |
 | [Agent Integration](https://bossa.mintlify.app/AGENT_INTEGRATION) | LangChain examples, tool patterns |
 | [Self-Hosting](https://bossa.mintlify.app/SELF_HOSTING) | Run Bossa on your own infrastructure |
+
+---
+
+## What Can You Build?
+
+### Personal AI Assistant
+
+```
+/memory
+  /user
+    preferences.json
+    conversation-history/
+  /projects
+    /project-alpha
+      context.md
+      decisions.md
+```
+
+Your agent remembers preferences, past conversations, and project context.
+
+### Customer Support Agent
+
+```
+/customers
+  /acme-corp
+    account-info.json
+    support-tickets/
+    interaction-history.md
+```
+
+Never ask a customer the same question twice.
+
+### Research Agent
+
+```
+/research
+  /topic-analysis
+    sources.md
+    findings.json
+    notes/
+```
+
+Build up a knowledge base over weeks of research.
+
+[See More Examples →](https://bossa.mintlify.app/USE_CASES)
 
 ---
 

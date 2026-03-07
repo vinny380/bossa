@@ -38,7 +38,7 @@ async def main() -> None:
         }
     )
     tools = await client.get_tools()
-    agent = create_agent("openai:gpt-4o", tools)
+    agent = create_agent("openai:gpt-5-mini", tools)
 
     print(
         "\nBossa chat ready. You have access to the filesystem (ls, read_file, write_file, grep, etc.)."

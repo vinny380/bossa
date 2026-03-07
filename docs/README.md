@@ -5,6 +5,9 @@
 | Doc | Description |
 |-----|-------------|
 | [Getting Started](./GETTING_STARTED.md) | Sign up, API key, CLI vs MCP choice, first request |
+| [Why Filesystem?](./WHY_FILESYSTEM.md) | Filesystem vs RAG — why we chose this approach |
+| [Add Docs as MCP](./ADD_DOCS_AS_MCP.md) | Add Bossa docs to Cursor, VS Code, Claude |
+| [Use Cases](./USE_CASES.md) | Personal assistant, support agent, research examples |
 | [CLI Reference](./CLI.md) | Full CLI command reference (auth, workspaces, keys, files) |
 | [MCP Integration](./MCP.md) | Connect Claude, Cursor, LangChain via MCP |
 | [REST API](./REST_API.md) | Full REST API reference |

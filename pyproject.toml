@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "bossa-memory"
 version = "0.1.0"
-description = "Virtual filesystem for AI agents, backed by Postgres"
+description = "Your AI agent's long-term memory. Persistent filesystem backed by Postgres."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"

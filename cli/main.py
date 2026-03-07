@@ -28,7 +28,7 @@ def _print_banner() -> None:
     tagline = Text()
     tagline.append("Bossa", style="bold cyan")
     tagline.append(" — ", style="dim")
-    tagline.append("virtual filesystem for AI agents", style="italic")
+    tagline.append("long-term memory for AI agents", style="italic")
     console.print(Rule(tagline, style="dim"))
 
 
@@ -42,7 +42,7 @@ app = typer.Typer(
 
 @app.callback()
 def _callback(_: typer.Context) -> None:
-    """Virtual filesystem for AI agents — ls, read, write, grep, glob."""
+    """Long-term memory for AI agents — ls, read, write, grep, glob."""
     _print_banner()
 
 
