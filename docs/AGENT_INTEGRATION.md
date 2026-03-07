@@ -14,7 +14,7 @@ This guide is for **AI agents** and **developers** building agents that use Boss
 
 ## Quick Start for Agents
 
-1. **Get an API key** — Sign up via the Bossa CLI, create a workspace, create a key. See [Getting Started](GETTING_STARTED).
+1. **Get an API key** — Install the CLI (`pip install bossa-memory`), sign up, create a workspace, create a key. See [Getting Started](GETTING_STARTED).
 
 2. **Choose your interface:**
    - **CLI** — If your agent runs tools as subprocesses (CLI-based harnesses, beads), use `bossa files ls`, `read`, `write`, `grep`, `glob`, `edit`, `delete`. Set `BOSSA_CLI_JSON=1` for JSON output.

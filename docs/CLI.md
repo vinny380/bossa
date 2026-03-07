@@ -7,7 +7,7 @@ description: "Full command reference for auth, workspaces, keys, and filesystem 
 
 The Bossa CLI manages accounts, workspaces, API keys, and provides full filesystem access. It is a first-class interface for agents — when your harness runs tools as subprocesses, use `bossa files` for the same operations as MCP.
 
-**Install:** `pip install -r requirements.txt` or `pip install -e .`
+**Install:** `pip install bossa-memory`
 
 ---
 

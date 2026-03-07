@@ -16,8 +16,7 @@ Use the Bossa managed service to give your apps and agents a virtual filesystem.
 The Bossa CLI manages accounts, workspaces, and API keys.
 
 ```bash
-pip install -r requirements.txt
-# Or: pip install -e .   # to get the 'bossa' command
+pip install bossa-memory
 ```
 
 ---

@@ -3,11 +3,23 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "bossa"
+name = "bossa-memory"
 version = "0.1.0"
 description = "Virtual filesystem for AI agents, backed by Postgres"
 readme = "README.md"
+license = "MIT"
 requires-python = ">=3.10"
+authors = [{ name = "Vinicius" }]
+keywords = ["filesystem", "agents", "mcp", "ai", "memory", "postgres"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries",
+]
 dependencies = [
     # Backend (Vercel, API, MCP)
     "fastmcp",
@@ -28,6 +40,11 @@ dependencies = [
 
 [project.scripts]
 bossa = "cli.main:main"
+
+[project.urls]
+Homepage = "https://bossa.mintlify.app"
+Documentation = "https://bossa.mintlify.app"
+Repository = "https://github.com/vinny380/bossa"
 
 [tool.setuptools.packages.find]
 include = ["cli*"]

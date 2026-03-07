@@ -1,5 +1,7 @@
 # Bossa Documentation
 
+**📖 Full documentation:** [bossa.mintlify.app](https://bossa.mintlify.app)
+
 | Doc | Description |
 |-----|-------------|
 | [Getting Started](./GETTING_STARTED.md) | Sign up, API key, CLI vs MCP choice, first request |

@@ -7,13 +7,16 @@
     Persistent, searchable memory — backed by Postgres, exposed as a filesystem. Give your agents <code>ls</code>, <code>read</code>, <code>write</code>, <code>grep</code>, and <code>glob</code> to store and recall knowledge across sessions.
   </p>
   <p align="center">
+    <strong>📖 <a href="https://bossa.mintlify.app">Documentation → bossa.mintlify.app</a></strong>
+  </p>
+  <p align="center">
     <a href="#get-started">Get Started</a> &middot;
     <a href="#dynamic-context-discovery">Dynamic Context Discovery</a> &middot;
     <a href="#cli">CLI</a> &middot;
     <a href="#mcp-tools">MCP</a> &middot;
     <a href="#rest-api">REST API</a> &middot;
     <a href="#examples">Examples</a> &middot;
-    <a href="docs/README.md">Docs</a>
+    <a href="https://bossa.mintlify.app">Docs</a>
   </p>
 </p>
 
@@ -62,9 +65,9 @@ Instead of packing static prompts, let your agents discover context dynamically.
 
 | Step | Action |
 |------|--------|
-| 1 | [Sign up](docs/GETTING_STARTED.md#2-sign-up--log-in) via the CLI |
-| 2 | [Create a workspace & API key](docs/GETTING_STARTED.md#3-create-a-workspace--api-key) |
-| 3 | [Connect your agent](docs/GETTING_STARTED.md#4-make-your-first-request) via MCP or REST |
+| 1 | [Sign up](https://bossa.mintlify.app/GETTING_STARTED#2-sign-up--log-in) via the CLI |
+| 2 | [Create a workspace & API key](https://bossa.mintlify.app/GETTING_STARTED#3-create-a-workspace--api-key) |
+| 3 | [Connect your agent](https://bossa.mintlify.app/GETTING_STARTED#4-make-your-first-request) via MCP or REST |
 
 **Base URL:** `https://filesystem-fawn.vercel.app`  
 **MCP endpoint:** `https://filesystem-fawn.vercel.app/mcp`
@@ -73,12 +76,12 @@ Instead of packing static prompts, let your agents discover context dynamically.
 
 | Doc | Description |
 |-----|-------------|
-| [Getting Started](docs/GETTING_STARTED.md) | Sign up, API key, memory layer setup |
-| [CLI Reference](docs/CLI.md) | Full CLI command reference |
-| [MCP Integration](docs/MCP.md) | Claude, Cursor, LangChain setup |
-| [REST API](docs/REST_API.md) | Full API reference |
-| [Agent Integration](docs/AGENT_INTEGRATION.md) | LangChain examples, tool patterns |
-| [Self-Hosting](docs/SELF_HOSTING.md) | Run Bossa on your own infrastructure |
+| [Getting Started](https://bossa.mintlify.app/GETTING_STARTED) | Sign up, API key, memory layer setup |
+| [CLI Reference](https://bossa.mintlify.app/CLI) | Full CLI command reference |
+| [MCP Integration](https://bossa.mintlify.app/MCP) | Claude, Cursor, LangChain setup |
+| [REST API](https://bossa.mintlify.app/REST_API) | Full API reference |
+| [Agent Integration](https://bossa.mintlify.app/AGENT_INTEGRATION) | LangChain examples, tool patterns |
+| [Self-Hosting](https://bossa.mintlify.app/SELF_HOSTING) | Run Bossa on your own infrastructure |
 
 ---
 
@@ -87,8 +90,7 @@ Instead of packing static prompts, let your agents discover context dynamically.
 The Bossa CLI is a first-class interface for agents. When your harness runs tools as subprocesses (e.g. CLI-based agents, beads), use `bossa files` for full filesystem parity with MCP: `ls`, `read`, `write`, `grep`, `glob`, `edit`, `delete`. The CLI also manages accounts, workspaces, and API keys. It defaults to the managed service — no config needed.
 
 ```bash
-pip install -r requirements.txt
-# Or: pip install -e .
+pip install bossa-memory
 ```
 
 ```bash
@@ -105,7 +107,7 @@ bossa files upload ./my-docs --target /docs
 
 **Agent mode:** Use `--json` for machine-readable output, or set `BOSSA_CLI_JSON=1` to get JSON from all commands. Exit codes: 0 success, 1 error, 2 auth failure.
 
-See [CLI Reference](docs/CLI.md) for full command reference.
+See [CLI Reference](https://bossa.mintlify.app/CLI) for full command reference.
 
 ---
 
@@ -142,7 +144,7 @@ All endpoints under `/api/v1`. Base URL: `https://filesystem-fawn.vercel.app`.
 | `PATCH` | `/api/v1/files` | Edit file (replace substring) |
 | `DELETE` | `/api/v1/files?path=...` | Delete a file |
 
-Full reference: [docs/REST_API.md](docs/REST_API.md).
+Full reference: [REST API](https://bossa.mintlify.app/REST_API).
 
 ---
 
@@ -160,8 +162,11 @@ echo "New content" | bossa files write /memory/note.txt
 
 ### Interactive chat (MCP, discover context dynamically)
 
+Clone the repo for examples (requires LangChain, etc.):
+
 ```bash
-export BOSSA_API_URL=https://filesystem-fawn.vercel.app
+git clone https://github.com/vinny380/bossa && cd bossa
+pip install -r requirements.txt
 export BOSSA_API_KEY=your-api-key
 export OPENAI_API_KEY=sk-...
 python examples/chat.py
@@ -192,7 +197,7 @@ agent = create_agent("openai:gpt-4o", tools)
 
 ## Self-Hosting
 
-Want to run Bossa on your own infrastructure? See [docs/SELF_HOSTING.md](docs/SELF_HOSTING.md) for local Docker setup and Supabase + Vercel deployment.
+Want to run Bossa on your own infrastructure? See [Self-Hosting](https://bossa.mintlify.app/SELF_HOSTING) for local Docker setup and Supabase + Vercel deployment. Self-hosting requires cloning the repo and `pip install -r requirements.txt`.
 
 ---
 
