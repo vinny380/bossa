@@ -95,6 +95,14 @@
   },
   "contextual": {
     "options": [
+      "copy",
+      "view",
+      {
+        "title": "llms.txt",
+        "description": "Open llms.txt for this site",
+        "icon": "file-lines",
+        "href": "/llms.txt"
+      },
       "mcp",
       "cursor",
       "vscode"
