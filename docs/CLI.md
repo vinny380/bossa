@@ -52,7 +52,7 @@ Config is stored in `~/.config/bossa/config.json` (or `$XDG_CONFIG_HOME/bossa/co
 
 | Command | Description |
 |---------|-------------|
-| `bossa keys create <workspace>` | Create an API key (copy it — shown once) |
+| `bossa keys create <workspace> [--save]` | Create an API key (copy it — shown once). Use `--save` / `-s` to save key to config as active workspace; no copy/paste needed. |
 | `bossa keys list <workspace>` | List keys for a workspace |
 | `bossa keys revoke <workspace> <key_id>` | Revoke a key |
 

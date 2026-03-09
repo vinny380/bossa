@@ -7,6 +7,7 @@ from rich.table import Table
 
 from cli.auth import get_access_token
 from cli.config import BOSSA_API_URL, BOSSA_TIMEOUT
+from cli.workspace_context import set_active_workspace
 
 console = Console()
 keys_app = typer.Typer(help="Manage API keys")
@@ -43,6 +44,7 @@ def _resolve_workspace_id(token: str, workspace: str) -> str:
 def create_key(
     workspace: str = typer.Argument(..., help="Workspace name or ID"),
     name: str = typer.Option("default", "--name", "-n", help="Key name"),
+    save: bool = typer.Option(False, "--save", "-s", help="Save key to config as active workspace"),
 ) -> None:
     """Create an API key. Copy it now; it won't be shown again."""
     token = _require_auth()
@@ -57,9 +59,13 @@ def create_key(
         console.print(f"[red]Error: {resp.status_code} {resp.text}[/red]")
         raise typer.Exit(1)
     data = resp.json()
-    console.print(
-        "[yellow]API key created. Copy it now; it won't be shown again:[/yellow]"
-    )
+    if save:
+        set_active_workspace(workspace, workspace_id, data["key"])
+        console.print(f"[green]Key created and saved. Active workspace: {workspace}[/green]")
+    else:
+        console.print(
+            "[yellow]API key created. Copy it now; it won't be shown again:[/yellow]"
+        )
     console.print(f"[bold]{data['key']}[/bold]")
 
 

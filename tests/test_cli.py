@@ -277,3 +277,29 @@ def test_files_ls_json_when_env_set(mock_bossa_url) -> None:
             break
     else:
         pytest.fail("No JSON in output")
+
+
+def test_keys_create_with_save_calls_set_active_workspace() -> None:
+    """bossa keys create my-app --save stores key in config."""
+    mock_get_resp = MagicMock()
+    mock_get_resp.status_code = 200
+    mock_get_resp.json.return_value = [
+        {"id": "9f2b6471-b966-44b8-bc99-403877666923", "name": "my-app"},
+    ]
+    mock_post_resp = MagicMock()
+    mock_post_resp.status_code = 200
+    mock_post_resp.json.return_value = {"key": "sk-new-key-123"}
+
+    mock_client = MagicMock()
+    mock_client.get.return_value = mock_get_resp
+    mock_client.post.return_value = mock_post_resp
+    mock_client.__enter__ = MagicMock(return_value=mock_client)
+    mock_client.__exit__ = MagicMock(return_value=None)
+
+    with patch("cli.keys.get_access_token", return_value="fake-token"):
+        with patch("cli.keys.httpx.Client", return_value=mock_client):
+            with patch("cli.keys.set_active_workspace") as mock_set:
+                result = runner.invoke(app, ["keys", "create", "my-app", "--save"])
+    assert result.exit_code == 0
+    mock_set.assert_called_once_with("my-app", "9f2b6471-b966-44b8-bc99-403877666923", "sk-new-key-123")
+    assert "Active workspace: my-app" in result.output

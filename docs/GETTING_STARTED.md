@@ -62,6 +62,12 @@ bossa workspaces create my-app
 bossa keys create my-app
 ```
 
+**One-liner:** Create workspace and key and save to config in one step:
+
+```bash
+bossa workspaces create my-app && bossa keys create my-app --save
+```
+
 Example output:
 
 ```
@@ -79,7 +85,7 @@ Avoid passing `--key` on every command by setting an active workspace:
 bossa workspace use my-app --key sk-7f3a9b2c1d4e5f6a7b8c9d0e1f2a3b4c5d6e7f
 ```
 
-The key is stored in `~/.config/bossa/config.json`. After this, you can run `bossa files ls /` without `--key`.
+Or use `bossa keys create my-app --save` to create and save in one step. The key is stored in `~/.config/bossa/config.json`. After this, you can run `bossa files ls /` without `--key`.
 
 ---
 
