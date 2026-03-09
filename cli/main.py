@@ -19,6 +19,7 @@ from rich.text import Text
 from cli.auth_commands import login, logout, signup, whoami
 from cli.files import files_app
 from cli.keys import keys_app
+from cli.workspace_context import workspace_app
 from cli.workspaces import workspaces_app
 
 console = Console()
@@ -51,6 +52,7 @@ app.command("signup")(signup)
 app.command("logout")(logout)
 app.command("whoami")(whoami)
 app.add_typer(workspaces_app, name="workspaces")
+app.add_typer(workspace_app, name="workspace")
 app.add_typer(keys_app, name="keys")
 app.add_typer(files_app, name="files")
 
