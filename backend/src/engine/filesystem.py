@@ -76,11 +76,57 @@ async def _ensure_folders_for_path(workspace_id: str, full_path: str) -> str:
     return await _get_or_create_folder(workspace_id, folder_path)
 
 
-async def ls(workspace_id: str, path: str = "/") -> str:
-    """List files and directories at the given path."""
+async def ls(
+    workspace_id: str, path: str = "/", include_metadata: bool = False
+) -> str | list[dict]:
+    """List files and directories at the given path.
+
+    If include_metadata=False, returns newline-separated names (dirs end with /).
+    If include_metadata=True, returns list of {name, type, size?, modified?}.
+    """
     path = normalize_path(path)
     if not path.endswith("/"):
         path = path + "/"
+
+    if include_metadata:
+        rows = await fetch_all(
+            """
+            SELECT path, length(content) as size, updated_at
+            FROM files
+            WHERE workspace_id = $1 AND path LIKE $2
+            """,
+            workspace_id,
+            path + "%",
+        )
+        if not rows:
+            return []
+
+        seen: set[str] = set()
+        entries: list[dict] = []
+        for row in rows:
+            rest = row["path"][len(path) :]
+            if not rest:
+                continue
+            parts = rest.split("/")
+            name = parts[0]
+            if name in seen:
+                continue
+            seen.add(name)
+            if len(parts) > 1:
+                entries.append({"name": name + "/", "type": "directory"})
+            else:
+                size = row["size"] if row["size"] is not None else 0
+                updated = row["updated_at"]
+                modified = updated.isoformat() + "Z" if updated else None
+                entries.append(
+                    {
+                        "name": name,
+                        "type": "file",
+                        "size": size,
+                        "modified": modified,
+                    }
+                )
+        return sorted(entries, key=lambda e: e["name"].lower())
 
     rows = await fetch_all(
         """
@@ -94,8 +140,8 @@ async def ls(workspace_id: str, path: str = "/") -> str:
     if not rows:
         return ""
 
-    seen: set[str] = set()
-    entries: list[str] = []
+    seen = set()
+    names: list[str] = []
     for row in rows:
         rest = row["path"][len(path) :]
         if not rest:
@@ -106,11 +152,11 @@ async def ls(workspace_id: str, path: str = "/") -> str:
             continue
         seen.add(name)
         if len(parts) > 1:
-            entries.append(name + "/")
+            names.append(name + "/")
         else:
-            entries.append(name)
+            names.append(name)
 
-    return "\n".join(sorted(entries)) if entries else ""
+    return "\n".join(sorted(names)) if names else ""
 
 
 async def read_file(workspace_id: str, path: str) -> str:
@@ -178,9 +224,13 @@ async def write_files_bulk(workspace_id: str, files: list[tuple[str, str]]) -> d
 
 
 async def edit_file(
-    workspace_id: str, path: str, old_string: str, new_string: str
+    workspace_id: str,
+    path: str,
+    old_string: str,
+    new_string: str,
+    replace_all: bool = False,
 ) -> str:
-    """Replace old_string with new_string in a file."""
+    """Replace old_string with new_string in a file. If replace_all, replace all occurrences."""
     path = normalize_path(path)
     row = await fetch_one(
         "SELECT content FROM files WHERE workspace_id = $1 AND path = $2",
@@ -192,7 +242,11 @@ async def edit_file(
     content = row["content"]
     if old_string not in content:
         return f"Error: old_string not found in {path}"
-    new_content = content.replace(old_string, new_string, 1)
+    new_content = (
+        content.replace(old_string, new_string)
+        if replace_all
+        else content.replace(old_string, new_string, 1)
+    )
     await write_file(workspace_id, path, new_content)
     return f"Edited {path}"
 
@@ -458,3 +512,110 @@ async def delete_file(workspace_id: str, path: str) -> str:
         path,
     )
     return f"Deleted {path}"
+
+
+async def stat_file(workspace_id: str, path: str) -> dict | None:
+    """Return file metadata: path, size, modified, created. None if not found."""
+    path = normalize_path(path)
+    row = await fetch_one(
+        """
+        SELECT path, length(content) as size, updated_at, created_at
+        FROM files
+        WHERE workspace_id = $1 AND path = $2
+        """,
+        workspace_id,
+        path,
+    )
+    if not row:
+        return None
+    return {
+        "path": row["path"],
+        "size": row["size"] or 0,
+        "modified": row["updated_at"].isoformat() + "Z" if row["updated_at"] else None,
+        "created": row["created_at"].isoformat() + "Z" if row["created_at"] else None,
+    }
+
+
+async def tree(workspace_id: str, path: str = "/", depth: int | None = None) -> str:
+    """Return directory tree as indented text. depth limits recursion (None = unlimited)."""
+    path = normalize_path(path)
+    if not path.endswith("/"):
+        path = path + "/"
+
+    rows = await fetch_all(
+        """
+        SELECT path FROM files
+        WHERE workspace_id = $1 AND path LIKE $2
+        ORDER BY path
+        """,
+        workspace_id,
+        path + "%",
+    )
+    if not rows:
+        return ""
+
+    prefix_len = len(path)
+    lines: list[str] = []
+    seen: set[str] = set()
+
+    for row in rows:
+        rest = row["path"][prefix_len:]
+        if not rest:
+            continue
+        parts = rest.split("/")
+        for i in range(len(parts)):
+            if depth is not None and i >= depth:
+                break
+            seg = "/".join(parts[: i + 1])
+            is_dir = i < len(parts) - 1
+            key = seg + "/" if is_dir else seg
+            if key in seen:
+                continue
+            seen.add(key)
+            name = parts[i] + "/" if is_dir else parts[i]
+            lines.append("  " * i + name)
+
+    return "\n".join(lines)
+
+
+async def du(workspace_id: str, path: str = "/") -> list[dict]:
+    """Return disk usage: list of {path, size} for each directory under path."""
+    path = normalize_path(path)
+    if not path.endswith("/"):
+        path = path + "/"
+
+    rows = await fetch_all(
+        """
+        SELECT path, length(content) as size
+        FROM files
+        WHERE workspace_id = $1 AND path LIKE $2
+        """,
+        workspace_id,
+        path + "%",
+    )
+    if not rows:
+        return [{"path": path.rstrip("/") or "/", "size": 0}]
+
+    prefix_len = len(path)
+    dir_sizes: dict[str, int] = {}
+
+    for row in rows:
+        file_path = row["path"]
+        size = row["size"] or 0
+        rest = file_path[prefix_len:]
+        if not rest:
+            continue
+        parts = rest.split("/")
+        root_key = path.rstrip("/") or "/"
+        dir_sizes[root_key] = dir_sizes.get(root_key, 0) + size
+        for i in range(len(parts) - 1):
+            dir_path = path + "/".join(parts[: i + 1])
+            if not dir_path.endswith("/"):
+                dir_path = dir_path + "/"
+            parent = dir_path.rstrip("/") or "/"
+            dir_sizes[parent] = dir_sizes.get(parent, 0) + size
+
+    result = [{"path": p, "size": s} for p, s in sorted(dir_sizes.items())]
+    if not result:
+        result = [{"path": path.rstrip("/") or "/", "size": 0}]
+    return result

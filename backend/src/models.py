@@ -12,6 +12,7 @@ class FileEdit(BaseModel):
     path: str
     old_string: str
     new_string: str
+    replace_all: bool = False
 
 
 class FileBulkCreate(BaseModel):
@@ -90,3 +91,19 @@ class GrepSearchResponse(BaseModel):
     returned_matches: int = 0
     has_more: bool = False
     next_offset: int | None = None
+
+
+class BatchOp(BaseModel):
+    op: Literal["read", "write", "delete"]
+    path: str
+    content: str | None = None
+
+    @model_validator(mode="after")
+    def validate_write_has_content(self) -> "BatchOp":
+        if self.op == "write" and self.content is None:
+            raise ValueError("content required for write op")
+        return self
+
+
+class BatchRequest(BaseModel):
+    ops: list[BatchOp]

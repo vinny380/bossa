@@ -114,11 +114,38 @@ async def edit_file(
         str,
         Field(description="Replacement string. Use empty string to delete old_string."),
     ],
+    replace_all: Annotated[
+        bool,
+        Field(
+            description="If true, replace all occurrences. If false, replace only the first."
+        ),
+    ] = False,
     headers: Annotated[dict, CurrentHeaders()] = {},
 ) -> str:
-    """Replace the first occurrence of old_string with new_string in a file. old_string must match exactly. Fails if the file does not exist or old_string is not found."""
+    """Replace old_string with new_string in a file. Use replace_all=true for replace-all. old_string must match exactly. Fails if the file does not exist or old_string is not found."""
     workspace_id = await resolve_workspace_id(_extract_api_key(headers))
-    return await fs.edit_file(workspace_id, path, old_string, new_string)
+    return await fs.edit_file(
+        workspace_id, path, old_string, new_string, replace_all=replace_all
+    )
+
+
+@mcp.tool(
+    annotations={
+        "readOnlyHint": True,
+        "idempotentHint": True,
+        "openWorldHint": False,
+    }
+)
+async def stat(
+    path: Annotated[str, Field(description="Absolute path to the file.")],
+    headers: Annotated[dict, CurrentHeaders()] = {},
+) -> dict:
+    """Return file metadata: path, size, modified, created. Returns error if file not found."""
+    workspace_id = await resolve_workspace_id(_extract_api_key(headers))
+    result = await fs.stat_file(workspace_id, path)
+    if result is None:
+        return {"error": f"File not found: {path}"}
+    return result
 
 
 @mcp.tool(
