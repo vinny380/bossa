@@ -33,7 +33,8 @@ Both headers are supported; use at least one.
 | `ls` | List files and directories at a path. Directories end with `/`. | ✓ |
 | `read_file` | Return file contents with numbered lines (`1: line text`). | ✓ |
 | `write_file` | Create or overwrite a file. | |
-| `edit_file` | Replace the first occurrence of a substring in a file. | |
+| `edit_file` | Replace substring in a file. Use `replace_all` for replace-all. | |
+| `stat` | Return file metadata: path, size, modified, created. | ✓ |
 | `grep` | Search file contents (literal/regex, boolean filters, pagination). | ✓ |
 | `glob_search` | Find files by glob pattern (e.g. `**/*.py`). | ✓ |
 | `delete_file` | Permanently delete a file. | |

@@ -104,6 +104,16 @@ Use `grep` with `output_mode="files_with_matches"` to find files, then read only
 2. read_file path="/customers/acme/profile.md"
 ```
 
+### Batch Operations (CLI)
+
+For agents doing many ops, use `bossa files batch` to reduce round-trips:
+
+```bash
+echo '{"op":"read","path":"/docs/api.md"}
+{"op":"read","path":"/memory/summary.md"}
+{"op":"write","path":"/output/combined.md","content":"..."}' | bossa files batch
+```
+
 ### Save Agent Output
 
 Use `write_file` (MCP) or `bossa files write` (CLI) to persist summaries, analyses, or memory:
@@ -137,6 +147,10 @@ bossa files edit /config.json --old '"debug": false' --new '"debug": true'
 | `BOSSA_API_URL` | `https://filesystem-fawn.vercel.app` (managed service) |
 | `BOSSA_API_KEY` | Your workspace API key |
 | `OPENAI_API_KEY` | For LangChain/OpenAI agents |
+
+## --safe Flag for Harnesses
+
+Read-only commands (`ls`, `read`, `grep`, `glob`, `stat`, `tree`, `du`) support `--safe`. Use it when your agent harness gates tool execution: `--safe` signals that the operation is read-only and can be auto-approved.
 
 ---
 

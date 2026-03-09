@@ -75,7 +75,7 @@ GET /api/v1/files?path=/docs/readme.md
 ### List Directory
 
 ```
-GET /api/v1/files/list?path=/
+GET /api/v1/files/list?path=/&metadata=false
 ```
 
 **Query:**
@@ -83,10 +83,64 @@ GET /api/v1/files/list?path=/
 | Param | Default | Description |
 |-------|---------|-------------|
 | path | `/` | Directory path |
+| metadata | `false` | If `true`, return `{name, type, size?, modified?}` per item |
 
-**Response:** `200` — `{"items": ["customers/", "docs/", "readme.txt"]}`
+**Response:** `200` — Without metadata: `{"items": ["customers/", "docs/", "readme.txt"]}`. With `metadata=true`: `{"items": [{"name": "docs/", "type": "directory"}, {"name": "readme.txt", "type": "file", "size": 1024, "modified": "2026-03-06T10:00:00Z"}]}`. Directories end with `/`.
 
-Directories end with `/`.
+---
+
+### Stat (File Metadata)
+
+```
+GET /api/v1/files/stat?path=/docs/readme.md
+```
+
+**Response:** `200` — `{"path": "/docs/readme.md", "size": 1024, "modified": "2026-03-06T10:00:00Z", "created": "2026-03-01T08:00:00Z"}`. `404` if not found.
+
+---
+
+### Tree
+
+```
+GET /api/v1/files/tree?path=/&depth=2
+```
+
+**Query:** `path` (default `/`), `depth` (optional, limits recursion).
+
+**Response:** `200` — `{"tree": "  a/\n    b/\n      file.txt"}`
+
+---
+
+### Disk Usage
+
+```
+GET /api/v1/files/du?path=/
+```
+
+**Response:** `200` — `{"usage": [{"path": "/", "size": 4096}, {"path": "/docs", "size": 2048}]}`
+
+---
+
+### Batch Operations
+
+```
+POST /api/v1/files/batch
+Content-Type: application/json
+```
+
+**Body:**
+
+```json
+{
+  "ops": [
+    {"op": "read", "path": "/docs/api.md"},
+    {"op": "write", "path": "/output/summary.md", "content": "..."},
+    {"op": "delete", "path": "/temp.txt"}
+  ]
+}
+```
+
+Max 100 ops per request. **Response:** `200` — `{"results": [{"op": "read", "path": "...", "content": "..."}, ...]}`
 
 ---
 
@@ -173,9 +227,17 @@ Content-Type: application/json
 {
   "path": "/config.json",
   "old_string": "\"debug\": false",
-  "new_string": "\"debug\": true"
+  "new_string": "\"debug\": true",
+  "replace_all": false
 }
 ```
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| path | string | — | File path |
+| old_string | string | — | Substring to replace |
+| new_string | string | — | Replacement |
+| replace_all | bool | false | If true, replace all occurrences; else first only |
 
 Replaces the first occurrence of `old_string` with `new_string`.
 

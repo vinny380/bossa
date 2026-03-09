@@ -71,9 +71,19 @@ Created API key for workspace my-app:
 Store this key securely. It won't be shown again.
 ```
 
+### 4. Set Active Workspace (optional but recommended)
+
+Avoid passing `--key` on every command by setting an active workspace:
+
+```bash
+bossa workspace use my-app --key sk-7f3a9b2c1d4e5f6a7b8c9d0e1f2a3b4c5d6e7f
+```
+
+The key is stored in `~/.config/bossa/config.json`. After this, you can run `bossa files ls /` without `--key`.
+
 ---
 
-## 4. Make Your First Request
+## 5. Make Your First Request
 
 Agents can use Bossa in two main ways:
 
@@ -106,6 +116,11 @@ curl -H "Authorization: Bearer YOUR_API_KEY" \
 ### CLI (agent subprocess)
 
 ```bash
+# Option A: Use active workspace (after bossa workspace use my-app --key sk-xxx)
+bossa files ls /
+bossa files read /hello.txt
+
+# Option B: Set BOSSA_API_KEY
 export BOSSA_API_KEY=YOUR_API_KEY
 export BOSSA_CLI_JSON=1   # Optional: JSON output for agents
 bossa files ls /
@@ -131,7 +146,7 @@ See [MCP Integration](MCP) for client-specific setup.
 
 ---
 
-## 5. Upload Files via CLI
+## 6. Upload Files via CLI
 
 ```bash
 # Single file
@@ -141,7 +156,7 @@ bossa files put ./my-doc.txt --target /docs/my-doc.txt
 bossa files upload ./my-docs --target /docs
 ```
 
-Set `BOSSA_API_KEY` in your environment, or use `--key YOUR_API_KEY`. The CLI uses the managed service by default when `BOSSA_API_URL` points to the hosted URL.
+Set `BOSSA_API_KEY` in your environment, use `--key YOUR_API_KEY`, or run `bossa workspace use <name> --key <key>` to store the key. The CLI uses the managed service by default when `BOSSA_API_URL` points to the hosted URL.
 
 ### Full filesystem access
 
@@ -166,7 +181,8 @@ When your agent harness runs tools as subprocesses (e.g. CLI-based agents), use 
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `BOSSA_API_URL` | No | Default: `https://filesystem-fawn.vercel.app` (managed service). Override for self-hosted. |
-| `BOSSA_API_KEY` | Yes (API calls) | Your workspace API key (for file uploads, examples) |
+| `BOSSA_API_KEY` | Yes (API calls) | Your workspace API key. Or use `bossa workspace use <name> --key <key>`. |
+| `BOSSA_WORKSPACE` | No | Override active workspace by name (lookup key from config). |
 | `BOSSA_CLI_JSON` | No | Set to `1` for agent mode — all CLI commands return JSON |
 | `OPENAI_API_KEY` | Yes (examples) | For running the example agents |
 

@@ -35,6 +35,19 @@ Requires login (`bossa login`).
 
 ---
 
+## Workspace Context (Active Workspace)
+
+Set an active workspace to avoid passing `--key` on every `bossa files` command.
+
+| Command | Description |
+|---------|-------------|
+| `bossa workspace use <name> [--key sk-xxx]` | Set active workspace. Provide `--key` to store it, or use a previously stored key. |
+| `bossa workspace current` | Show active workspace name |
+
+Config is stored in `~/.config/bossa/config.json` (or `$XDG_CONFIG_HOME/bossa/config.json`).
+
+---
+
 ## API Keys
 
 | Command | Description |
@@ -49,12 +62,13 @@ Use `--name` with `create` to name the key (default: `default`).
 
 ## Filesystem Commands
 
-All `bossa files` commands require `BOSSA_API_KEY` or `--key`. They default to the managed service (`BOSSA_API_URL`).
+`bossa files` commands use API key from: `--key` > `BOSSA_API_KEY` > `BOSSA_WORKSPACE` (from config) > `config.active_key`. Run `bossa workspace use <name> --key <key>` to avoid passing `--key` on every command. Default API: `BOSSA_API_URL`.
 
 ### Agent Mode
 
 - **`--json`** or **`-j`** — Output JSON for machine parsing
 - **`BOSSA_CLI_JSON=1`** — All commands return JSON without passing the flag
+- **`--safe`** — On read-only commands (`ls`, `read`, `grep`, `glob`, `stat`, `tree`, `du`), signals auto-approval for agent harnesses that gate tool execution
 - **Exit codes:** 0 success, 1 error (not found, validation), 2 auth failure
 
 ### `ls` — List directory
@@ -65,7 +79,7 @@ bossa files ls [path]
 
 - **path** (default: `/`): Directory to list
 - **Output:** One item per line; directories end with `/`
-- **JSON:** `{"items": ["a/", "b.txt"]}`
+- **JSON** (with `--json` or `BOSSA_CLI_JSON=1`): `{"items": [{"name": "a/", "type": "directory"}, {"name": "b.txt", "type": "file", "size": 1024, "modified": "2026-03-06T10:00:00Z"}]}`
 
 ### `read` — Read file
 
@@ -95,15 +109,22 @@ bossa files write /note.txt --content "Note content"
 ### `grep` — Search contents
 
 ```bash
-bossa files grep <pattern> [--path /] [--regex] [--case-sensitive] [--output-mode matches|files_with_matches|count]
+bossa files grep [pattern] [--path /] [--regex] [--case-sensitive] [--output-mode matches|files_with_matches|count]
 ```
 
-- **pattern:** Literal or regex pattern
+- **pattern:** Literal or regex pattern (optional if using --all-of/--any-of/--none-of)
 - **--path, -p** (default: `/`): Scope to subtree
 - **--regex:** Treat pattern as regex
 - **--case-sensitive:** Case-sensitive match
+- **--whole-word:** Match whole words only
 - **--output-mode, -o** (default: `matches`): `matches` | `files_with_matches` | `count`
 - **--max-matches** (default: 100): Max results
+- **--offset:** Pagination offset
+- **--all-of:** All terms must match (AND). Repeatable.
+- **--any-of:** At least one term must match (OR). Repeatable.
+- **--none-of:** Exclude lines matching any. Repeatable.
+- **--context-before:** Lines before each match
+- **--context-after:** Lines after each match
 
 ### `glob` — Find by pattern
 
@@ -119,12 +140,41 @@ bossa files glob <pattern> [--path /]
 ### `edit` — Replace substring
 
 ```bash
-bossa files edit <path> --old <string> --new <string>
+bossa files edit <path> --old <string> --new <string> [--all]
 ```
 
 - **path:** File path
-- **--old, -o:** String to replace (first occurrence)
+- **--old, -o:** String to replace
 - **--new, -n:** Replacement string
+- **--all, -a:** Replace all occurrences (default: first only)
+
+### `stat` — File metadata
+
+```bash
+bossa files stat <path>
+```
+
+- **path:** File path
+- **Output:** size, modified, created
+- **JSON:** `{"path": "...", "size": N, "modified": "...", "created": "..."}`
+
+### `tree` — Directory tree
+
+```bash
+bossa files tree [path] [--depth N]
+```
+
+- **path** (default: `/`): Directory to show
+- **--depth, -d:** Max depth (default: unlimited)
+
+### `du` — Disk usage
+
+```bash
+bossa files du [path]
+```
+
+- **path** (default: `/`): Directory to summarize
+- **Output:** Size per directory
 
 ### `delete` — Delete file
 
@@ -140,6 +190,14 @@ bossa files put <local_file> [--target /path]
 
 - **local_file:** Local file path
 - **--target, -t:** Remote path (default: `/` + basename)
+
+### `batch` — Batch operations
+
+```bash
+bossa files batch
+```
+
+Reads JSON lines from stdin. Each line: `{"op": "read"|"write"|"delete", "path": "...", "content": "..."}` (content required for write). Max 100 ops.
 
 ### `upload` — Bulk upload
 
@@ -158,7 +216,8 @@ bossa files upload <local_path> [--target /prefix] [--include-hidden]
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `BOSSA_API_URL` | `https://filesystem-fawn.vercel.app` | API base URL |
-| `BOSSA_API_KEY` | — | Workspace API key (required for files commands) |
+| `BOSSA_API_KEY` | — | Workspace API key (or use `bossa workspace use`) |
+| `BOSSA_WORKSPACE` | — | Override active workspace by name |
 | `BOSSA_CLI_JSON` | — | Set to `1` for JSON output from all commands |
 | `BOSSA_TIMEOUT` | `30` | HTTP timeout (seconds) |
 

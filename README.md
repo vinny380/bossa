@@ -74,7 +74,7 @@ Bossa is the storage layer for that. Your agent uses `ls` and `grep` to *discove
 pip install bossa-memory
 bossa signup && bossa login
 bossa workspaces create my-app && bossa keys create my-app
-export BOSSA_API_KEY=sk-...
+bossa workspace use my-app --key sk-...   # Store key, then:
 bossa files ls /
 ```
 
