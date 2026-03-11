@@ -10,7 +10,10 @@ from src.mcp.request_context import get_headers_from_captured_request
 
 logger = logging.getLogger(__name__)
 
-mcp = FastMCP("Bossa")
+mcp = FastMCP(
+    name="Bossa",
+    instructions="Virtual filesystem for AI agent memory. All tools operate on a workspace-scoped store. Each API key maps to one workspace. Authenticate via Authorization: Bearer <key> or X-API-Key header.",
+)
 
 
 def _extract_api_key(headers: dict[str, str]) -> str | None:
@@ -140,7 +143,7 @@ async def stat(
     path: Annotated[str, Field(description="Absolute path to the file.")],
     headers: Annotated[dict, CurrentHeaders()] = {},
 ) -> dict:
-    """Return file metadata: path, size, modified, created. Returns error if file not found."""
+    """Return file metadata: path, size (bytes), modified (ISO 8601), created (ISO 8601). Returns error dict if file not found."""
     workspace_id = await resolve_workspace_id(_extract_api_key(headers))
     result = await fs.stat_file(workspace_id, path)
     if result is None:
@@ -157,7 +160,10 @@ async def stat(
 )
 async def grep(
     pattern: Annotated[
-        str | None, Field(description="Literal text or regex pattern to search for.")
+        str | None,
+        Field(
+            description="Literal text or regex pattern to search for. Omit when using all_of or any_of for multi-term matching."
+        ),
     ] = None,
     path: Annotated[
         str, Field(description="Directory or file path to scope the search.")
@@ -201,7 +207,7 @@ async def grep(
     ] = 0,
     headers: Annotated[dict, CurrentHeaders()] = {},
 ) -> dict:
-    """Search file contents without reading whole files. Supports literal or regex patterns, boolean inclusion/exclusion (all_of, any_of, none_of), and three output modes. Prefer output_mode='files_with_matches' to discover candidate files first, then read_file to inspect closely."""
+    """Search file contents without reading whole files. Supports literal/regex, boolean filters (all_of, any_of, none_of), and output modes. Tip: use output_mode='files_with_matches' first, then read_file to inspect."""
     workspace_id = await resolve_workspace_id(_extract_api_key(headers))
     result = await fs.grep(
         workspace_id,
@@ -255,6 +261,6 @@ async def delete_file(
     path: Annotated[str, Field(description="Absolute path to the file to delete.")],
     headers: Annotated[dict, CurrentHeaders()] = {},
 ) -> str:
-    """Permanently delete a file at the given path."""
+    """Permanently delete a file at the given path. No undo or recycle bin."""
     workspace_id = await resolve_workspace_id(_extract_api_key(headers))
     return await fs.delete_file(workspace_id, path)
