@@ -62,10 +62,22 @@ async def create_portal(
         )
 
     stripe.api_key = settings.stripe_secret_key
-    session = stripe.billing_portal.Session.create(
-        customer=customer_id,
-        return_url=settings.bossa_billing_success_url,
-    )
+    try:
+        session = stripe.billing_portal.Session.create(
+            customer=customer_id,
+            return_url=settings.bossa_billing_success_url,
+        )
+    except stripe.InvalidRequestError as e:
+        if "No such customer" in str(e):
+            await execute(
+                "UPDATE account_tiers SET stripe_customer_id = NULL WHERE user_id = $1",
+                user_id,
+            )
+            raise HTTPException(
+                status_code=400,
+                detail="Billing account reference is stale. Run 'bossa billing upgrade' to fix.",
+            ) from e
+        raise
     if not session.url:
         raise HTTPException(status_code=500, detail="Failed to create portal session")
     return PortalResponse(url=session.url)
@@ -116,14 +128,43 @@ async def create_checkout(
             customer_id,
         )
 
-    session = stripe.checkout.Session.create(
-        mode="subscription",
-        line_items=[{"price": price_id, "quantity": 1}],
-        customer=customer_id,
-        client_reference_id=user_id,
-        success_url=f"{settings.bossa_billing_success_url}?session_id={{CHECKOUT_SESSION_ID}}",
-        cancel_url=settings.bossa_billing_cancel_url,
-    )
+    try:
+        session = stripe.checkout.Session.create(
+            mode="subscription",
+            line_items=[{"price": price_id, "quantity": 1}],
+            customer=customer_id,
+            client_reference_id=user_id,
+            success_url=f"{settings.bossa_billing_success_url}?session_id={{CHECKOUT_SESSION_ID}}",
+            cancel_url=settings.bossa_billing_cancel_url,
+        )
+    except stripe.InvalidRequestError as e:
+        if "No such customer" in str(e) and customer_id:
+            # Stale customer ID in DB (e.g. from different Stripe account or deleted)
+            await execute(
+                "UPDATE account_tiers SET stripe_customer_id = NULL WHERE user_id = $1",
+                user_id,
+            )
+            customer = stripe.Customer.create(metadata={"user_id": user_id})
+            customer_id = customer.id
+            await execute(
+                """
+                INSERT INTO account_tiers (user_id, tier, stripe_customer_id)
+                VALUES ($1, 'free', $2)
+                ON CONFLICT (user_id) DO UPDATE SET stripe_customer_id = $2
+                """,
+                user_id,
+                customer_id,
+            )
+            session = stripe.checkout.Session.create(
+                mode="subscription",
+                line_items=[{"price": price_id, "quantity": 1}],
+                customer=customer_id,
+                client_reference_id=user_id,
+                success_url=f"{settings.bossa_billing_success_url}?session_id={{CHECKOUT_SESSION_ID}}",
+                cancel_url=settings.bossa_billing_cancel_url,
+            )
+        else:
+            raise
 
     if not session.url:
         raise HTTPException(status_code=500, detail="Failed to create checkout session")
