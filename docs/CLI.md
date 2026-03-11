@@ -11,6 +11,45 @@ The Bossa CLI manages accounts, workspaces, API keys, and provides full filesyst
 
 ---
 
+## Agent Documentation (`bossa init`)
+
+Add Bossa usage instructions to your agent config files (AGENTS.md, CLAUDE.md, GEMINI.md) so your AI agent knows how to use Bossa.
+
+```bash
+bossa init
+```
+
+Scans project and global locations for AGENTS.md, CLAUDE.md, and GEMINI.md, then appends a Bossa section. When multiple files are found, a checkbox list appears: use arrow keys to navigate, Space to toggle, Enter to confirm. In interactive mode, you are also asked how your agent will use Bossa (CLI, MCP, or both). Use flags for non-interactive use:
+
+| Flag | Description |
+|------|-------------|
+| `--project` | Only project files (./AGENTS.md, ./CLAUDE.md, ./GEMINI.md at project root) |
+| `--global` | Only global files (~/.claude/CLAUDE.md, ~/.codex/AGENTS.md, ~/.gemini/GEMINI.md, etc.) |
+| `--path PATH` | Explicit path(s); can repeat for multiple files |
+| `--mode`, `-m` | `cli`, `mcp`, or `both` — which instructions to include (default: both) |
+| `--overwrite` | Replace existing Bossa section (default: append) |
+| `--yes`, `-y` | Skip confirmation prompt |
+
+**Append (default):** Adds the Bossa section to the end of the file. Asks for confirmation unless `--yes`.
+
+**Overwrite:** Use `--overwrite` to update an existing Bossa section. Use this when you upgrade to a new bossa version — the generated content includes version-specific commands and flags. Requires the flag explicitly.
+
+```bash
+# Append to project files
+bossa init --project --yes
+
+# Append to specific file
+bossa init --path ./AGENTS.md --yes
+
+# Update to latest (e.g. after upgrading bossa)
+bossa init --path ./AGENTS.md --overwrite --yes
+
+# MCP-only instructions (for Cursor, Claude, LangChain)
+bossa init --path ./AGENTS.md --mode mcp --yes
+```
+
+---
+
 ## Authentication
 
 | Command | Description |

@@ -13,11 +13,11 @@ except ImportError:
 
 import typer
 from rich.console import Console
-from rich.rule import Rule
 from rich.text import Text
 
 from cli.auth_commands import login, logout, signup, whoami
 from cli.files import files_app
+from cli.init_commands import init
 from cli.keys import keys_app
 from cli.workspace_context import workspace_app
 from cli.workspaces import workspaces_app
@@ -27,10 +27,10 @@ console = Console()
 
 def _print_banner() -> None:
     tagline = Text()
-    tagline.append("Bossa", style="bold cyan")
+    tagline.append("Bossa", style="bold")
     tagline.append(" — ", style="dim")
-    tagline.append("long-term memory for AI agents", style="italic")
-    console.print(Rule(tagline, style="dim"))
+    tagline.append("long-term memory for AI agents", style="dim")
+    console.print(tagline)
 
 
 app = typer.Typer(
@@ -51,6 +51,7 @@ app.command("login")(login)
 app.command("signup")(signup)
 app.command("logout")(logout)
 app.command("whoami")(whoami)
+app.command("init")(init)
 app.add_typer(workspaces_app, name="workspaces")
 app.add_typer(workspace_app, name="workspace")
 app.add_typer(keys_app, name="keys")
