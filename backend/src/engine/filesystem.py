@@ -5,6 +5,7 @@ from src.db import execute, fetch_all, fetch_one
 from src.engine.path_utils import (escape_for_like, glob_to_sql_like,
                                    normalize_path)
 from src.models import GrepMatch, GrepSearchRequest, GrepSearchResponse
+from src.usage import LimitError, check_limits, get_account_id
 
 
 def _path_depth(path: str) -> int:
@@ -174,9 +175,33 @@ async def read_file(workspace_id: str, path: str) -> str:
     return "\n".join(f"{i + 1}: {line}" for i, line in enumerate(lines))
 
 
+async def _check_write_limits(workspace_id: str, path: str, content: str) -> None:
+    """Raise LimitError if write would exceed account limits. Skip if no account."""
+    account_id = await get_account_id(workspace_id)
+    if account_id is None:
+        return
+
+    existing = await fetch_one(
+        "SELECT content FROM files WHERE workspace_id = $1 AND path = $2",
+        workspace_id,
+        path,
+    )
+    if existing:
+        delta_storage = len(content) - len(existing["content"])
+        delta_files = 0
+    else:
+        delta_storage = len(content)
+        delta_files = 1
+
+    await check_limits(
+        account_id, "write", delta_storage=delta_storage, delta_files=delta_files
+    )
+
+
 async def write_file(workspace_id: str, path: str, content: str) -> str:
     """Create or overwrite a file."""
     path = normalize_path(path)
+    await _check_write_limits(workspace_id, path, content)
     folder_id = await _ensure_folders_for_path(workspace_id, path)
     name = path.rsplit("/", 1)[-1] or path.strip("/") or "file"
     await execute(
@@ -200,6 +225,29 @@ async def write_file(workspace_id: str, path: str, content: str) -> str:
 
 async def write_files_bulk(workspace_id: str, files: list[tuple[str, str]]) -> dict:
     """Create or overwrite multiple files. Returns {created, updated, failed}."""
+    account_id = await get_account_id(workspace_id)
+    if account_id is not None:
+        total_delta_storage = 0
+        total_delta_files = 0
+        for path, content in files:
+            path = normalize_path(path)
+            existing = await fetch_one(
+                "SELECT content FROM files WHERE workspace_id = $1 AND path = $2",
+                workspace_id,
+                path,
+            )
+            if existing:
+                total_delta_storage += len(content) - len(existing["content"])
+            else:
+                total_delta_storage += len(content)
+                total_delta_files += 1
+        await check_limits(
+            account_id,
+            "write",
+            delta_storage=total_delta_storage,
+            delta_files=total_delta_files,
+        )
+
     created = 0
     updated = 0
     failed: list[dict] = []

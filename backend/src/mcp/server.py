@@ -7,8 +7,19 @@ from pydantic import Field
 from src.auth import resolve_workspace_id
 from src.engine import filesystem as fs
 from src.mcp.request_context import get_headers_from_captured_request
+from src.usage import (LimitError, check_limits, get_account_id,
+                       increment_requests)
 
 logger = logging.getLogger(__name__)
+
+
+async def _track_and_check_limits(workspace_id: str) -> None:
+    """Increment request count and check limits. Raises LimitError if over."""
+    account_id = await get_account_id(workspace_id)
+    if account_id is not None:
+        await increment_requests(account_id)
+        await check_limits(account_id, "request")
+
 
 mcp = FastMCP(
     name="Bossa",
@@ -62,8 +73,12 @@ async def ls(
     headers: Annotated[dict, CurrentHeaders()] = {},
 ) -> str:
     """List immediate children (files and directories) at the given path. Returns one entry per line; directories end with `/`. Returns empty string if path has no children."""
-    workspace_id = await resolve_workspace_id(_extract_api_key(headers))
-    return await fs.ls(workspace_id, path)
+    try:
+        workspace_id = await resolve_workspace_id(_extract_api_key(headers))
+        await _track_and_check_limits(workspace_id)
+        return await fs.ls(workspace_id, path)
+    except LimitError as e:
+        return f"Error: {e}"
 
 
 @mcp.tool(
@@ -78,8 +93,12 @@ async def read_file(
     headers: Annotated[dict, CurrentHeaders()] = {},
 ) -> str:
     """Return the full contents of a file with numbered lines (e.g. `1: line text`). Returns an error string if the file does not exist."""
-    workspace_id = await resolve_workspace_id(_extract_api_key(headers))
-    return await fs.read_file(workspace_id, path)
+    try:
+        workspace_id = await resolve_workspace_id(_extract_api_key(headers))
+        await _track_and_check_limits(workspace_id)
+        return await fs.read_file(workspace_id, path)
+    except LimitError as e:
+        return f"Error: {e}"
 
 
 @mcp.tool(
@@ -96,8 +115,12 @@ async def write_file(
     headers: Annotated[dict, CurrentHeaders()] = {},
 ) -> str:
     """Create a new file or overwrite an existing file at the given path with the provided content."""
-    workspace_id = await resolve_workspace_id(_extract_api_key(headers))
-    return await fs.write_file(workspace_id, path, content)
+    try:
+        workspace_id = await resolve_workspace_id(_extract_api_key(headers))
+        await _track_and_check_limits(workspace_id)
+        return await fs.write_file(workspace_id, path, content)
+    except LimitError as e:
+        return f"Error: {e}"
 
 
 @mcp.tool(
@@ -126,10 +149,14 @@ async def edit_file(
     headers: Annotated[dict, CurrentHeaders()] = {},
 ) -> str:
     """Replace old_string with new_string in a file. Use replace_all=true for replace-all. old_string must match exactly. Fails if the file does not exist or old_string is not found."""
-    workspace_id = await resolve_workspace_id(_extract_api_key(headers))
-    return await fs.edit_file(
-        workspace_id, path, old_string, new_string, replace_all=replace_all
-    )
+    try:
+        workspace_id = await resolve_workspace_id(_extract_api_key(headers))
+        await _track_and_check_limits(workspace_id)
+        return await fs.edit_file(
+            workspace_id, path, old_string, new_string, replace_all=replace_all
+        )
+    except LimitError as e:
+        return f"Error: {e}"
 
 
 @mcp.tool(
@@ -144,11 +171,15 @@ async def stat(
     headers: Annotated[dict, CurrentHeaders()] = {},
 ) -> dict:
     """Return file metadata: path, size (bytes), modified (ISO 8601), created (ISO 8601). Returns error dict if file not found."""
-    workspace_id = await resolve_workspace_id(_extract_api_key(headers))
-    result = await fs.stat_file(workspace_id, path)
-    if result is None:
-        return {"error": f"File not found: {path}"}
-    return result
+    try:
+        workspace_id = await resolve_workspace_id(_extract_api_key(headers))
+        await _track_and_check_limits(workspace_id)
+        result = await fs.stat_file(workspace_id, path)
+        if result is None:
+            return {"error": f"File not found: {path}"}
+        return result
+    except LimitError as e:
+        return {"error": str(e)}
 
 
 @mcp.tool(
@@ -208,24 +239,28 @@ async def grep(
     headers: Annotated[dict, CurrentHeaders()] = {},
 ) -> dict:
     """Search file contents without reading whole files. Supports literal/regex, boolean filters (all_of, any_of, none_of), and output modes. Tip: use output_mode='files_with_matches' first, then read_file to inspect."""
-    workspace_id = await resolve_workspace_id(_extract_api_key(headers))
-    result = await fs.grep(
-        workspace_id,
-        pattern=pattern,
-        path=path,
-        regex=regex,
-        case_sensitive=case_sensitive,
-        whole_word=whole_word,
-        max_matches=max_matches,
-        offset=offset,
-        output_mode=output_mode,
-        all_of=all_of,
-        any_of=any_of,
-        none_of=none_of,
-        context_before=context_before,
-        context_after=context_after,
-    )
-    return result.model_dump()
+    try:
+        workspace_id = await resolve_workspace_id(_extract_api_key(headers))
+        await _track_and_check_limits(workspace_id)
+        result = await fs.grep(
+            workspace_id,
+            pattern=pattern,
+            path=path,
+            regex=regex,
+            case_sensitive=case_sensitive,
+            whole_word=whole_word,
+            max_matches=max_matches,
+            offset=offset,
+            output_mode=output_mode,
+            all_of=all_of,
+            any_of=any_of,
+            none_of=none_of,
+            context_before=context_before,
+            context_after=context_after,
+        )
+        return result.model_dump()
+    except LimitError as e:
+        return {"error": str(e)}
 
 
 @mcp.tool(
@@ -246,8 +281,12 @@ async def glob_search(
     headers: Annotated[dict, CurrentHeaders()] = {},
 ) -> str:
     """Find files whose paths match a glob pattern. Returns matching absolute file paths, one per line."""
-    workspace_id = await resolve_workspace_id(_extract_api_key(headers))
-    return await fs.glob_search(workspace_id, pattern, path)
+    try:
+        workspace_id = await resolve_workspace_id(_extract_api_key(headers))
+        await _track_and_check_limits(workspace_id)
+        return await fs.glob_search(workspace_id, pattern, path)
+    except LimitError as e:
+        return f"Error: {e}"
 
 
 @mcp.tool(
@@ -262,5 +301,9 @@ async def delete_file(
     headers: Annotated[dict, CurrentHeaders()] = {},
 ) -> str:
     """Permanently delete a file at the given path. No undo or recycle bin."""
-    workspace_id = await resolve_workspace_id(_extract_api_key(headers))
-    return await fs.delete_file(workspace_id, path)
+    try:
+        workspace_id = await resolve_workspace_id(_extract_api_key(headers))
+        await _track_and_check_limits(workspace_id)
+        return await fs.delete_file(workspace_id, path)
+    except LimitError as e:
+        return f"Error: {e}"

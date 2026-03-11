@@ -6,6 +6,7 @@ from src.config import settings
 from src.db import close_pool, ping
 from src.mcp.request_context import _captured_request
 from src.mcp.server import mcp
+from src.usage import LimitError
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 
@@ -47,6 +48,13 @@ app = FastAPI(title="Bossa", lifespan=combined_lifespan)
 app.add_middleware(CaptureMCPRequestMiddleware)
 app.include_router(api_router, prefix="/api/v1")
 app.mount("/mcp", mcp_app)
+
+
+@app.exception_handler(LimitError)
+async def limit_error_handler(request, exc: LimitError):
+    from starlette.responses import JSONResponse
+
+    return JSONResponse(status_code=402, content={"detail": str(exc)})
 
 
 @app.get("/auth/config")

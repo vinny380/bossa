@@ -22,6 +22,22 @@ class Settings(BaseSettings):
     supabase_url: str | None = None
     supabase_anon_key: str | None = None
     supabase_jwt_secret: str | None = None
+    # Comma-separated Supabase Auth user IDs that bypass usage limits (owner role)
+    owner_user_ids: str = ""
+    # Stripe (optional; omit to disable billing)
+    stripe_secret_key: str = ""
+    stripe_webhook_secret: str = ""
+    stripe_price_id_monthly: str = ""
+    stripe_price_id_yearly: str = ""
+    bossa_billing_success_url: str = "https://bossa.mintlify.app/GETTING_STARTED"
+    bossa_billing_cancel_url: str = "https://bossa.mintlify.app/PRICING"
+
+    @property
+    def owner_user_ids_list(self) -> list[str]:
+        """Parse OWNER_USER_IDS into list of UUIDs (stripped, non-empty)."""
+        if not self.owner_user_ids:
+            return []
+        return [x.strip() for x in self.owner_user_ids.split(",") if x.strip()]
 
     @model_validator(mode="after")
     def _apply_env_defaults(self) -> "Settings":

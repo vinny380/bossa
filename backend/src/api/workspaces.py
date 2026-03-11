@@ -3,8 +3,10 @@
 import asyncpg
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
+from src.config import settings
 from src.db import fetch_all, fetch_one
 from src.dependencies import get_current_user_id
+from src.usage import LimitError, get_tier
 
 router = APIRouter(prefix="/workspaces", tags=["workspaces"])
 
@@ -35,6 +37,17 @@ async def create_workspace(
     user_id: str = Depends(get_current_user_id),
 ) -> WorkspaceResponse:
     """Create a workspace for the current user."""
+    if user_id not in settings.owner_user_ids_list:
+        tier = await get_tier(user_id)
+        if tier == "free":
+            row = await fetch_one(
+                "SELECT COUNT(*)::int AS cnt FROM workspaces WHERE user_id = $1",
+                user_id,
+            )
+            if row and row["cnt"] >= 1:
+                raise LimitError(
+                    "Free tier limit: 1 workspace. Upgrade at https://bossa.mintlify.app/pricing"
+                )
     try:
         row = await fetch_one(
             "INSERT INTO workspaces (name, user_id) VALUES ($1, $2) RETURNING id, name",

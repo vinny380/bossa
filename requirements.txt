@@ -2,6 +2,7 @@
 # Backend / API / MCP
 # ==============================================================================
 fastmcp
+stripe
 fastapi
 uvicorn[standard]
 asyncpg

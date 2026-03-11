@@ -4,6 +4,7 @@ from fastapi import Depends, Header, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from src.auth import resolve_workspace_id
 from src.auth.jwt import verify_supabase_jwt
+from src.usage import check_limits, get_account_id, increment_requests
 
 _bearer = HTTPBearer()
 
@@ -35,3 +36,14 @@ async def get_workspace_id(
         return await resolve_workspace_id(api_key)
     except ValueError as e:
         raise HTTPException(status_code=401, detail=str(e)) from e
+
+
+async def get_workspace_id_with_tracking(
+    workspace_id: str = Depends(get_workspace_id),
+) -> str:
+    """Resolve workspace_id, track request, check limits. Use for file endpoints."""
+    account_id = await get_account_id(workspace_id)
+    if account_id is not None:
+        await increment_requests(account_id)
+        await check_limits(account_id, "request")
+    return workspace_id

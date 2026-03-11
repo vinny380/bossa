@@ -1,6 +1,15 @@
+from enum import Enum
 from typing import Literal
 
 from pydantic import BaseModel, Field, model_validator
+
+
+class Tier(str, Enum):
+    """Account tier. Owner bypasses all usage limits."""
+
+    FREE = "free"
+    PRO = "pro"
+    OWNER = "owner"
 
 
 class FileCreate(BaseModel):
