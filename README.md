@@ -195,6 +195,7 @@ Run Bossa on your own infrastructure. [Self-hosting guide →](https://bossa.min
 | Doc | Description |
 |-----|-------------|
 | [Getting Started](https://bossa.mintlify.app/GETTING_STARTED) | Sign up, API key, first request |
+| [Pricing & Limits](https://bossa.mintlify.app/PRICING) | Account tiers, usage limits |
 | [Why Filesystem?](https://bossa.mintlify.app/WHY_FILESYSTEM) | Filesystem vs RAG |
 | [Dynamic Context Discovery](https://bossa.mintlify.app/DYNAMIC_CONTEXT_DISCOVERY) | How Bossa fits Cursor & LangChain |
 | [CLI Reference](https://bossa.mintlify.app/CLI) | Full command reference |
