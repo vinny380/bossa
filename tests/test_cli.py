@@ -301,5 +301,7 @@ def test_keys_create_with_save_calls_set_active_workspace() -> None:
             with patch("cli.keys.set_active_workspace") as mock_set:
                 result = runner.invoke(app, ["keys", "create", "my-app", "--save"])
     assert result.exit_code == 0
-    mock_set.assert_called_once_with("my-app", "9f2b6471-b966-44b8-bc99-403877666923", "sk-new-key-123")
+    mock_set.assert_called_once_with(
+        "my-app", "9f2b6471-b966-44b8-bc99-403877666923", "sk-new-key-123"
+    )
     assert "Active workspace: my-app" in result.output

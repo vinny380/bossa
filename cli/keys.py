@@ -44,7 +44,9 @@ def _resolve_workspace_id(token: str, workspace: str) -> str:
 def create_key(
     workspace: str = typer.Argument(..., help="Workspace name or ID"),
     name: str = typer.Option("default", "--name", "-n", help="Key name"),
-    save: bool = typer.Option(False, "--save", "-s", help="Save key to config as active workspace"),
+    save: bool = typer.Option(
+        False, "--save", "-s", help="Save key to config as active workspace"
+    ),
 ) -> None:
     """Create an API key. Copy it now; it won't be shown again."""
     token = _require_auth()
@@ -61,7 +63,9 @@ def create_key(
     data = resp.json()
     if save:
         set_active_workspace(workspace, workspace_id, data["key"])
-        console.print(f"[green]Key created and saved. Active workspace: {workspace}[/green]")
+        console.print(
+            f"[green]Key created and saved. Active workspace: {workspace}[/green]"
+        )
     else:
         console.print(
             "[yellow]API key created. Copy it now; it won't be shown again:[/yellow]"
