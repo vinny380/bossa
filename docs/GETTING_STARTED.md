@@ -87,6 +87,14 @@ bossa workspace use my-app --key sk-7f3a9b2c1d4e5f6a7b8c9d0e1f2a3b4c5d6e7f
 
 Or use `bossa keys create my-app --save` to create and save in one step. The key is stored in `~/.config/bossa/config.json`. After this, you can run `bossa files ls /` without `--key`.
 
+### Add Bossa to your agent config (optional)
+
+Run `bossa init` to add Bossa usage instructions to your AGENTS.md or CLAUDE.md. Your AI agent will then know how to use Bossa commands.
+
+```bash
+bossa init --path ./AGENTS.md --yes
+```
+
 ---
 
 ## 5. Make Your First Request

@@ -9,6 +9,8 @@ When your agent runs tools as subprocesses (OpenClaw exec, Claude Code, beads, e
 
 **Install:** `pip install bossa-memory`
 
+**Agent config:** Run `bossa init` to inject Bossa CLI docs into your agent config (AGENTS.md, CLAUDE.md). Use `--path ./AGENTS.md --yes` for non-interactive setup.
+
 ---
 
 ## Auth

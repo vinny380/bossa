@@ -16,11 +16,13 @@ This guide is for **AI agents** and **developers** building agents that need lon
 
 1. **Get an API key** — Install the CLI (`pip install bossa-memory`), sign up, create a workspace, create a key. See [Getting Started](GETTING_STARTED).
 
-2. **Choose your interface:**
+2. **Add Bossa to your agent config** — Run `bossa init` to add Bossa usage instructions to AGENTS.md or CLAUDE.md. Your agent will know the commands, flags, and exit codes. Use `bossa init --path ./AGENTS.md --yes` for non-interactive setup.
+
+3. **Choose your interface:**
    - **CLI** — If your agent runs tools as subprocesses (CLI-based harnesses, beads), use `bossa files ls`, `read`, `write`, `grep`, `glob`, `edit`, `delete`. Set `BOSSA_CLI_JSON=1` for JSON output.
    - **MCP** — If your harness supports MCP (LangChain, Claude, Cursor), connect to `https://filesystem-fawn.vercel.app/mcp` with headers `Authorization: Bearer YOUR_API_KEY` or `X-API-Key: YOUR_API_KEY`.
 
-3. **Use the tools** — Both interfaces expose the same operations: `ls`, `read`/`read_file`, `write`/`write_file`, `grep`, `glob`/`glob_search`, `edit`/`edit_file`, `delete`/`delete_file`.
+4. **Use the tools** — Both interfaces expose the same operations: `ls`, `read`/`read_file`, `write`/`write_file`, `grep`, `glob`/`glob_search`, `edit`/`edit_file`, `delete`/`delete_file`.
 
 ---
 

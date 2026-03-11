@@ -41,6 +41,9 @@ docker compose exec -T postgres psql -U postgres -d bossa \
 
 docker compose exec -T postgres psql -U postgres -d bossa \
   -f - < supabase/migrations/004_folders.sql
+
+docker compose exec -T postgres psql -U postgres -d bossa \
+  -f - < supabase/migrations/005_rls_policies.sql
 ```
 
 ### 3. Start the server
@@ -85,7 +88,10 @@ supabase/migrations/001_initial_schema.sql
 supabase/migrations/002_workspace_api_keys.sql
 supabase/migrations/003_workspace_user_ownership.sql
 supabase/migrations/004_folders.sql
+supabase/migrations/005_rls_policies.sql
 ```
+
+See [RLS_AND_SECURITY.md](RLS_AND_SECURITY.md) for why RLS is required (protects data when using anon key).
 
 Run them with the Supabase SQL editor or `psql` against the Supabase Postgres endpoint.
 
