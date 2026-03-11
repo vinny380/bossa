@@ -5,28 +5,20 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
-from cli.auth import get_access_token
-from cli.config import BOSSA_API_URL, BOSSA_TIMEOUT
+from cli.auth import require_auth
+from cli.config import BOSSA_API_BASE, BOSSA_TIMEOUT
 
 console = Console()
 workspaces_app = typer.Typer(help="Manage workspaces")
 
 
-def _require_auth() -> str:
-    token = get_access_token()
-    if not token:
-        console.print("[red]Not logged in. Run 'bossa login' first.[/red]")
-        raise typer.Exit(1)
-    return token
-
-
 @workspaces_app.command("list")
 def list_workspaces() -> None:
     """List your workspaces."""
-    token = _require_auth()
+    token = require_auth()
     with httpx.Client(timeout=BOSSA_TIMEOUT) as client:
         resp = client.get(
-            f"{BOSSA_API_URL.rstrip('/')}/api/v1/workspaces",
+            f"{BOSSA_API_BASE}/api/v1/workspaces",
             headers={"Authorization": f"Bearer {token}"},
         )
     if resp.status_code != 200:
@@ -49,10 +41,10 @@ def list_workspaces() -> None:
 @workspaces_app.command("create")
 def create_workspace(name: str = typer.Argument(..., help="Workspace name")) -> None:
     """Create a workspace."""
-    token = _require_auth()
+    token = require_auth()
     with httpx.Client(timeout=BOSSA_TIMEOUT) as client:
         resp = client.post(
-            f"{BOSSA_API_URL.rstrip('/')}/api/v1/workspaces",
+            f"{BOSSA_API_BASE}/api/v1/workspaces",
             headers={"Authorization": f"Bearer {token}"},
             json={"name": name},
         )

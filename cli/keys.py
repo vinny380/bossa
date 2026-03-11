@@ -5,20 +5,12 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
-from cli.auth import get_access_token
-from cli.config import BOSSA_API_URL, BOSSA_TIMEOUT
+from cli.auth import require_auth
+from cli.config import BOSSA_API_BASE, BOSSA_TIMEOUT
 from cli.workspace_context import set_active_workspace
 
 console = Console()
 keys_app = typer.Typer(help="Manage API keys")
-
-
-def _require_auth() -> str:
-    token = get_access_token()
-    if not token:
-        console.print("[red]Not logged in. Run 'bossa login' first.[/red]")
-        raise typer.Exit(1)
-    return token
 
 
 def _resolve_workspace_id(token: str, workspace: str) -> str:
@@ -27,7 +19,7 @@ def _resolve_workspace_id(token: str, workspace: str) -> str:
         return workspace
     with httpx.Client(timeout=BOSSA_TIMEOUT) as client:
         resp = client.get(
-            f"{BOSSA_API_URL.rstrip('/')}/api/v1/workspaces",
+            f"{BOSSA_API_BASE}/api/v1/workspaces",
             headers={"Authorization": f"Bearer {token}"},
         )
     if resp.status_code != 200:
@@ -49,11 +41,11 @@ def create_key(
     ),
 ) -> None:
     """Create an API key. Copy it now; it won't be shown again."""
-    token = _require_auth()
+    token = require_auth()
     workspace_id = _resolve_workspace_id(token, workspace)
     with httpx.Client(timeout=BOSSA_TIMEOUT) as client:
         resp = client.post(
-            f"{BOSSA_API_URL.rstrip('/')}/api/v1/workspaces/{workspace_id}/keys",
+            f"{BOSSA_API_BASE}/api/v1/workspaces/{workspace_id}/keys",
             headers={"Authorization": f"Bearer {token}"},
             json={"name": name},
         )
@@ -78,11 +70,11 @@ def list_keys(
     workspace: str = typer.Argument(..., help="Workspace name or ID"),
 ) -> None:
     """List API keys for a workspace."""
-    token = _require_auth()
+    token = require_auth()
     workspace_id = _resolve_workspace_id(token, workspace)
     with httpx.Client(timeout=BOSSA_TIMEOUT) as client:
         resp = client.get(
-            f"{BOSSA_API_URL.rstrip('/')}/api/v1/workspaces/{workspace_id}/keys",
+            f"{BOSSA_API_BASE}/api/v1/workspaces/{workspace_id}/keys",
             headers={"Authorization": f"Bearer {token}"},
         )
     if resp.status_code != 200:
@@ -107,11 +99,11 @@ def revoke_key(
     key_id: str = typer.Argument(..., help="Key ID to revoke"),
 ) -> None:
     """Revoke an API key."""
-    token = _require_auth()
+    token = require_auth()
     workspace_id = _resolve_workspace_id(token, workspace)
     with httpx.Client(timeout=BOSSA_TIMEOUT) as client:
         resp = client.delete(
-            f"{BOSSA_API_URL.rstrip('/')}/api/v1/workspaces/{workspace_id}/keys/{key_id}",
+            f"{BOSSA_API_BASE}/api/v1/workspaces/{workspace_id}/keys/{key_id}",
             headers={"Authorization": f"Bearer {token}"},
         )
     if resp.status_code != 200:

@@ -74,6 +74,17 @@ Requires login (`bossa login`).
 
 ---
 
+## Upgrade to Pro
+
+| Command | Description |
+|---------|-------------|
+| `bossa billing upgrade [--interval month\|year]` | Open Stripe Checkout in browser to upgrade to Pro. Default: monthly. |
+| `bossa billing manage` | Open Stripe Customer Portal to manage subscription (update payment, view invoices, cancel). |
+
+Requires login (`bossa login`).
+
+---
+
 ## Workspace Context (Active Workspace)
 
 Set an active workspace to avoid passing `--key` on every `bossa files` command.

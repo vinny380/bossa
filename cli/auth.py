@@ -3,6 +3,9 @@
 import json
 from pathlib import Path
 
+import typer
+from rich.console import Console
+
 from cli.config import CREDENTIALS_PATH
 
 
@@ -42,3 +45,12 @@ def get_access_token() -> str | None:
     """Get current access token, or None if not logged in."""
     creds = load_credentials()
     return creds.get("access_token") if creds else None
+
+
+def require_auth() -> str:
+    """Get access token or exit with error if not logged in."""
+    token = get_access_token()
+    if not token:
+        Console().print("[red]Not logged in. Run 'bossa login' first.[/red]")
+        raise typer.Exit(1)
+    return token

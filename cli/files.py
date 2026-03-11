@@ -9,7 +9,7 @@ import httpx
 import typer
 from rich.console import Console
 
-from cli.config import BOSSA_API_URL, BOSSA_TIMEOUT
+from cli.config import BOSSA_API_BASE, BOSSA_TIMEOUT
 from cli.workspace_context import get_active_key, get_workspace_key
 
 console = Console()
@@ -76,8 +76,8 @@ def ls_cmd(
     key: str = typer.Option(None, "--key", "-k", help="API key (or BOSSA_API_KEY)"),
 ) -> None:
     """List files and directories at a path. Exit codes: 0=success, 1=error, 2=auth failure."""
-    api_key = _get_api_key(key, BOSSA_API_URL)
-    url = f"{BOSSA_API_URL.rstrip('/')}/api/v1/files/list"
+    api_key = _get_api_key(key, BOSSA_API_BASE)
+    url = f"{BOSSA_API_BASE}/api/v1/files/list"
     params: dict = {"path": path}
     if _json_mode(json_output):
         params["metadata"] = "true"
@@ -103,8 +103,8 @@ def read_cmd(
     key: str = typer.Option(None, "--key", "-k", help="API key (or BOSSA_API_KEY)"),
 ) -> None:
     """Read file content. Outputs raw content to stdout for piping. Exit codes: 0=success, 1=error, 2=auth failure."""
-    api_key = _get_api_key(key, BOSSA_API_URL)
-    url = f"{BOSSA_API_URL.rstrip('/')}/api/v1/files"
+    api_key = _get_api_key(key, BOSSA_API_BASE)
+    url = f"{BOSSA_API_BASE}/api/v1/files"
     with httpx.Client(timeout=BOSSA_TIMEOUT) as client:
         resp = client.get(url, headers=_api_headers(api_key), params={"path": path})
     _handle_response(resp)
@@ -128,8 +128,8 @@ def stat_cmd(
     key: str = typer.Option(None, "--key", "-k", help="API key (or BOSSA_API_KEY)"),
 ) -> None:
     """Show file metadata: size, modified, created. Exit codes: 0=success, 1=error, 2=auth failure."""
-    api_key = _get_api_key(key, BOSSA_API_URL)
-    url = f"{BOSSA_API_URL.rstrip('/')}/api/v1/files/stat"
+    api_key = _get_api_key(key, BOSSA_API_BASE)
+    url = f"{BOSSA_API_BASE}/api/v1/files/stat"
     with httpx.Client(timeout=BOSSA_TIMEOUT) as client:
         resp = client.get(url, headers=_api_headers(api_key), params={"path": path})
     _handle_response(resp)
@@ -156,8 +156,8 @@ def tree_cmd(
     key: str = typer.Option(None, "--key", "-k", help="API key (or BOSSA_API_KEY)"),
 ) -> None:
     """Show directory tree. Exit codes: 0=success, 1=error, 2=auth failure."""
-    api_key = _get_api_key(key, BOSSA_API_URL)
-    url = f"{BOSSA_API_URL.rstrip('/')}/api/v1/files/tree"
+    api_key = _get_api_key(key, BOSSA_API_BASE)
+    url = f"{BOSSA_API_BASE}/api/v1/files/tree"
     params: dict = {"path": path}
     if depth is not None:
         params["depth"] = depth
@@ -182,8 +182,8 @@ def du_cmd(
     key: str = typer.Option(None, "--key", "-k", help="API key (or BOSSA_API_KEY)"),
 ) -> None:
     """Show disk usage per directory. Exit codes: 0=success, 1=error, 2=auth failure."""
-    api_key = _get_api_key(key, BOSSA_API_URL)
-    url = f"{BOSSA_API_URL.rstrip('/')}/api/v1/files/du"
+    api_key = _get_api_key(key, BOSSA_API_BASE)
+    url = f"{BOSSA_API_BASE}/api/v1/files/du"
     with httpx.Client(timeout=BOSSA_TIMEOUT) as client:
         resp = client.get(url, headers=_api_headers(api_key), params={"path": path})
     _handle_response(resp)
@@ -203,8 +203,8 @@ def delete_cmd(
     key: str = typer.Option(None, "--key", "-k", help="API key (or BOSSA_API_KEY)"),
 ) -> None:
     """Delete a file. Exit codes: 0=success, 1=error, 2=auth failure."""
-    api_key = _get_api_key(key, BOSSA_API_URL)
-    url = f"{BOSSA_API_URL.rstrip('/')}/api/v1/files"
+    api_key = _get_api_key(key, BOSSA_API_BASE)
+    url = f"{BOSSA_API_BASE}/api/v1/files"
     with httpx.Client(timeout=BOSSA_TIMEOUT) as client:
         resp = client.delete(url, headers=_api_headers(api_key), params={"path": path})
     _handle_response(resp)
@@ -227,8 +227,8 @@ def write_cmd(
     """Write file content. Reads from stdin if --content not provided. Exit codes: 0=success, 1=error, 2=auth failure."""
     if content is None:
         content = sys.stdin.read()
-    api_key = _get_api_key(key, BOSSA_API_URL)
-    url = f"{BOSSA_API_URL.rstrip('/')}/api/v1/files"
+    api_key = _get_api_key(key, BOSSA_API_BASE)
+    url = f"{BOSSA_API_BASE}/api/v1/files"
     with httpx.Client(timeout=BOSSA_TIMEOUT) as client:
         resp = client.post(
             url,
@@ -286,8 +286,8 @@ def grep_cmd(
     if not pattern and not all_of and not any_of and not none_of:
         console.print("[red]Provide pattern or --all-of/--any-of/--none-of[/red]")
         raise typer.Exit(1)
-    api_key = _get_api_key(key, BOSSA_API_URL)
-    url = f"{BOSSA_API_URL.rstrip('/')}/api/v1/files/search"
+    api_key = _get_api_key(key, BOSSA_API_BASE)
+    url = f"{BOSSA_API_BASE}/api/v1/files/search"
     payload = {
         "path": path,
         "regex": regex,
@@ -332,8 +332,8 @@ def glob_cmd(
     key: str = typer.Option(None, "--key", "-k", help="API key (or BOSSA_API_KEY)"),
 ) -> None:
     """Find files matching glob pattern. Exit codes: 0=success, 1=error, 2=auth failure."""
-    api_key = _get_api_key(key, BOSSA_API_URL)
-    url = f"{BOSSA_API_URL.rstrip('/')}/api/v1/files/glob"
+    api_key = _get_api_key(key, BOSSA_API_BASE)
+    url = f"{BOSSA_API_BASE}/api/v1/files/glob"
     with httpx.Client(timeout=BOSSA_TIMEOUT) as client:
         resp = client.get(
             url,
@@ -362,8 +362,8 @@ def edit_cmd(
     key: str = typer.Option(None, "--key", "-k", help="API key (or BOSSA_API_KEY)"),
 ) -> None:
     """Replace old_string with new_string in file. Use --all for replace-all. Exit codes: 0=success, 1=error, 2=auth failure."""
-    api_key = _get_api_key(key, BOSSA_API_URL)
-    url = f"{BOSSA_API_URL.rstrip('/')}/api/v1/files"
+    api_key = _get_api_key(key, BOSSA_API_BASE)
+    url = f"{BOSSA_API_BASE}/api/v1/files"
     with httpx.Client(timeout=BOSSA_TIMEOUT) as client:
         resp = client.patch(
             url,
@@ -398,13 +398,13 @@ def put_file(
         console.print(f"[red]Not a file: {local_file}[/red]")
         raise typer.Exit(1)
 
-    api_key = _get_api_key(key, BOSSA_API_URL)
+    api_key = _get_api_key(key, BOSSA_API_BASE)
     remote_path = target.rstrip("/") if target != "/" else "/"
     if remote_path == "/" or remote_path.endswith("/"):
         remote_path = (remote_path + local_file.name).replace("//", "/")
 
     content = local_file.read_text(encoding="utf-8", errors="replace")
-    url = f"{BOSSA_API_URL.rstrip('/')}/api/v1/files"
+    url = f"{BOSSA_API_BASE}/api/v1/files"
     with httpx.Client(timeout=BOSSA_TIMEOUT) as client:
         resp = client.post(
             url,
@@ -437,7 +437,7 @@ def batch_cmd(
     key: str = typer.Option(None, "--key", "-k", help="API key (or BOSSA_API_KEY)"),
 ) -> None:
     """Execute batch ops from stdin (one JSON object per line). Ops: read, write, delete. Exit codes: 0=success, 1=error, 2=auth failure."""
-    api_key = _get_api_key(key, BOSSA_API_URL)
+    api_key = _get_api_key(key, BOSSA_API_BASE)
     lines = sys.stdin.read().strip().split("\n")
     ops: list[dict] = []
     for line in lines:
@@ -458,7 +458,7 @@ def batch_cmd(
     if len(ops) > 100:
         console.print("[red]Max 100 ops per batch[/red]")
         raise typer.Exit(1)
-    url = f"{BOSSA_API_URL.rstrip('/')}/api/v1/files/batch"
+    url = f"{BOSSA_API_BASE}/api/v1/files/batch"
     with httpx.Client(timeout=BOSSA_TIMEOUT) as client:
         resp = client.post(url, headers=_api_headers(api_key), json={"ops": ops})
     _handle_response(resp)
@@ -492,7 +492,7 @@ def upload_files(
         console.print(f"[red]Path not found: {local_path}[/red]")
         raise typer.Exit(1)
 
-    api_key = _get_api_key(key, BOSSA_API_URL)
+    api_key = _get_api_key(key, BOSSA_API_BASE)
     files_list = _collect_files(local_path, include_hidden)
     if not files_list:
         console.print("[yellow]No files to upload[/yellow]")
@@ -531,7 +531,7 @@ def upload_files(
         if not payload_files:
             continue
 
-        url = f"{BOSSA_API_URL.rstrip('/')}/api/v1/files/bulk"
+        url = f"{BOSSA_API_BASE}/api/v1/files/bulk"
         with httpx.Client(timeout=BOSSA_TIMEOUT) as client:
             resp = client.post(
                 url,

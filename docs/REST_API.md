@@ -259,6 +259,52 @@ DELETE /api/v1/files?path=/docs/old.txt
 
 ---
 
+## Usage
+
+```
+GET /api/v1/usage
+```
+
+Returns current usage and limits for the account associated with the API key.
+
+**Response:** `200` — `{"storage_mb": 12.5, "files_count": 42, "requests_today": 156, "tier": "free", "limits": {"storage_mb": 100, "files": 500, "requests_per_day": 1000}}`
+
+See [Pricing & Limits](PRICING) for tier details.
+
+---
+
+## Billing
+
+### Create Checkout Session
+
+```
+POST /api/v1/billing/checkout?interval=month
+Authorization: Bearer <JWT>
+```
+
+Creates a Stripe Checkout session for Pro subscription. Requires JWT (from `bossa login`), not API key.
+
+**Query:** `interval` — `month` (default) or `year`
+
+**Response:** `200` — `{"checkout_url": "https://checkout.stripe.com/..."}`
+
+Redirect the user to `checkout_url` to complete payment. See [Pricing & Limits](PRICING).
+
+### Create Portal Session
+
+```
+POST /api/v1/billing/portal
+Authorization: Bearer <JWT>
+```
+
+Creates a Stripe Customer Portal session for managing subscription (update payment, view invoices, cancel). Requires JWT (from `bossa login`), not API key.
+
+**Response:** `200` — `{"url": "https://billing.stripe.com/..."}`
+
+Redirect the user to `url` to manage their subscription. Returns `400` with `"No billing account. Run 'bossa billing upgrade' first."` if the user has no Stripe customer. Returns `503` if billing is not configured.
+
+---
+
 ## Public Endpoint
 
 ### Health Check
@@ -276,6 +322,7 @@ No authentication required. Returns `200` with `{"status": "ok"}`.
 | Code | Meaning |
 |------|---------|
 | 401 | Missing or invalid API key |
+| 402 | Usage limit exceeded (storage, files, requests, or workspaces). [Upgrade](https://bossa.mintlify.app/pricing) for higher limits. |
 | 404 | File or path not found |
 | 400 | Invalid request (e.g. empty body, validation error) |
 | 413 | Batch size exceeds 100 files |

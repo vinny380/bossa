@@ -5,7 +5,8 @@ import typer
 from rich.console import Console
 
 from cli.auth import clear_credentials, get_access_token, save_credentials
-from cli.config import BOSSA_API_URL, SUPABASE_ANON_KEY, SUPABASE_URL
+from cli.config import (BOSSA_API_BASE, BOSSA_API_URL, SUPABASE_ANON_KEY,
+                        SUPABASE_URL)
 
 console = Console()
 
@@ -21,7 +22,7 @@ def _get_supabase_config() -> tuple[str, str]:
         )
         raise typer.Exit(1)
     try:
-        resp = httpx.get(f"{BOSSA_API_URL.rstrip('/')}/auth/config", timeout=10)
+        resp = httpx.get(f"{BOSSA_API_BASE}/auth/config", timeout=10)
         if resp.status_code != 200:
             console.print(
                 "[red]Could not fetch auth config from Bossa. "

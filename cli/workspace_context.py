@@ -9,7 +9,7 @@ import typer
 from rich.console import Console
 
 from cli.auth import get_access_token
-from cli.config import BOSSA_API_URL, BOSSA_TIMEOUT
+from cli.config import BOSSA_API_BASE, BOSSA_TIMEOUT
 
 console = Console()
 workspace_app = typer.Typer(
@@ -98,7 +98,7 @@ def _resolve_workspace_id(token: str, workspace: str) -> str:
         return workspace
     with httpx.Client(timeout=BOSSA_TIMEOUT) as client:
         resp = client.get(
-            f"{BOSSA_API_URL.rstrip('/')}/api/v1/workspaces",
+            f"{BOSSA_API_BASE}/api/v1/workspaces",
             headers={"Authorization": f"Bearer {token}"},
         )
     if resp.status_code != 200:

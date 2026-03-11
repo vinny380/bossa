@@ -25,6 +25,10 @@
         "href": "/GETTING_STARTED"
       },
       {
+        "label": "Pricing",
+        "href": "/PRICING"
+      },
+      {
         "label": "API",
         "href": "/REST_API"
       }
@@ -41,6 +45,7 @@
         "header": "Documentation",
         "items": [
           { "label": "Getting Started", "href": "/GETTING_STARTED" },
+          { "label": "Pricing & Limits", "href": "/PRICING" },
           { "label": "CLI Reference", "href": "/CLI" },
           { "label": "REST API", "href": "/REST_API" }
         ]
@@ -59,7 +64,7 @@
       {
         "group": "Getting Started",
         "icon": "rocket",
-        "pages": ["index", "GETTING_STARTED", "WHY_FILESYSTEM", "DYNAMIC_CONTEXT_DISCOVERY", "ADD_DOCS_AS_MCP"]
+        "pages": ["index", "GETTING_STARTED", "PRICING", "WHY_FILESYSTEM", "DYNAMIC_CONTEXT_DISCOVERY", "ADD_DOCS_AS_MCP"]
       },
       {
         "group": "Reference",

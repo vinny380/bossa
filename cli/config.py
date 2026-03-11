@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 
 BOSSA_API_URL = os.environ.get("BOSSA_API_URL", "https://filesystem-fawn.vercel.app")
+BOSSA_API_BASE = BOSSA_API_URL.rstrip("/")
 # Timeout in seconds for HTTP requests (handles serverless cold starts)
 BOSSA_TIMEOUT = float(os.environ.get("BOSSA_TIMEOUT", "30"))
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "")

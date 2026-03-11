@@ -43,7 +43,22 @@ docker compose exec -T postgres psql -U postgres -d bossa \
   -f - < supabase/migrations/004_folders.sql
 
 docker compose exec -T postgres psql -U postgres -d bossa \
-  -f - < supabase/migrations/005_rls_policies.sql
+  -f - < supabase/migrations/005_usage_limits.sql
+
+docker compose exec -T postgres psql -U postgres -d bossa \
+  -f - < supabase/migrations/006_tier_enum.sql
+
+docker compose exec -T postgres psql -U postgres -d bossa \
+  -f - < supabase/migrations/007_schema_indexes.sql
+
+docker compose exec -T postgres psql -U postgres -d bossa \
+  -f - < supabase/migrations/008_workspaces_user_fk.sql
+
+docker compose exec -T postgres psql -U postgres -d bossa \
+  -f - < supabase/migrations/009_account_tiers_updated_at.sql
+
+docker compose exec -T postgres psql -U postgres -d bossa \
+  -f - < supabase/migrations/010_usage_daily_user_fk.sql
 ```
 
 ### 3. Start the server
@@ -88,10 +103,13 @@ supabase/migrations/001_initial_schema.sql
 supabase/migrations/002_workspace_api_keys.sql
 supabase/migrations/003_workspace_user_ownership.sql
 supabase/migrations/004_folders.sql
-supabase/migrations/005_rls_policies.sql
+supabase/migrations/005_usage_limits.sql
+supabase/migrations/006_tier_enum.sql
+supabase/migrations/007_schema_indexes.sql
+supabase/migrations/008_workspaces_user_fk.sql
+supabase/migrations/009_account_tiers_updated_at.sql
+supabase/migrations/010_usage_daily_user_fk.sql
 ```
-
-See [RLS_AND_SECURITY.md](RLS_AND_SECURITY.md) for why RLS is required (protects data when using anon key).
 
 Run them with the Supabase SQL editor or `psql` against the Supabase Postgres endpoint.
 
@@ -138,3 +156,7 @@ curl -H "Authorization: Bearer YOUR_API_KEY" https://your-deployment-url.vercel.
 `sk-default` is blocked in production. Create keys with the CLI or `python backend/scripts/create_workspace.py`.
 
 MCP endpoint: `https://your-deployment-url.vercel.app/mcp` (pass `Authorization: Bearer YOUR_API_KEY` or `X-API-Key: YOUR_API_KEY` in client headers).
+
+### Usage limits
+
+Tiers and limits are enforced via `account_tiers` and `usage_daily` (migrations 005, 006). To bypass limits for core developers, set `OWNER_USER_IDS=uuid1,uuid2` (comma-separated user UUIDs). See [Pricing & Limits](PRICING) for tier details.

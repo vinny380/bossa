@@ -5,6 +5,7 @@
 | Doc | Description |
 |-----|-------------|
 | [Getting Started](./GETTING_STARTED.md) | Sign up, API key, CLI vs MCP choice, first request |
+| [Pricing & Limits](./PRICING.md) | Account tiers, usage limits, upgrade options |
 | [Why Filesystem?](./WHY_FILESYSTEM.md) | Filesystem vs RAG — why we chose this approach |
 | [Add Docs as MCP](./ADD_DOCS_AS_MCP.md) | Add Bossa docs to Cursor, VS Code, Claude |
 | [Use Cases](./USE_CASES.md) | Personal assistant, support agent, research examples |

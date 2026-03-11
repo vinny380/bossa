@@ -10,7 +10,7 @@ import questionary
 import typer
 from questionary import Style
 
-from cli.config import BOSSA_API_URL
+from cli.config import BOSSA_API_BASE
 
 # One Dark palette — polished, professional (InquirerPy-style)
 _INIT_CHECKBOX_STYLE = Style(
@@ -147,7 +147,7 @@ def _get_cli_section() -> str:
 
 def _get_mcp_section() -> str:
     """MCP-specific template content."""
-    mcp_url = f"{BOSSA_API_URL.rstrip('/')}/mcp"
+    mcp_url = f"{BOSSA_API_BASE}/mcp"
     return f"""
 ### MCP
 

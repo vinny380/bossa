@@ -16,6 +16,7 @@ from rich.console import Console
 from rich.text import Text
 
 from cli.auth_commands import login, logout, signup, whoami
+from cli.billing import billing_app
 from cli.files import files_app
 from cli.init_commands import init
 from cli.keys import keys_app
@@ -52,6 +53,7 @@ app.command("signup")(signup)
 app.command("logout")(logout)
 app.command("whoami")(whoami)
 app.command("init")(init)
+app.add_typer(billing_app, name="billing")
 app.add_typer(workspaces_app, name="workspaces")
 app.add_typer(workspace_app, name="workspace")
 app.add_typer(keys_app, name="keys")

@@ -23,6 +23,7 @@ classifiers = [
 dependencies = [
     # Backend (Vercel, API, MCP)
     "fastmcp",
+    "stripe",
     "fastapi",
     "uvicorn[standard]",
     "asyncpg",

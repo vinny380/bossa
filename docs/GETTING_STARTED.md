@@ -54,6 +54,8 @@ The CLI defaults to the managed service and fetches auth config automatically. N
 
 ## 3. Create a Workspace & API Key
 
+Free tier includes 1 workspace. See [Pricing & Limits](PRICING) for tier details.
+
 ```bash
 # Create a workspace (e.g. "my-app")
 bossa workspaces create my-app
