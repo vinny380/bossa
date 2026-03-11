@@ -19,7 +19,7 @@ def mock_bossa_url():
         os.environ,
         {"BOSSA_API_KEY": "sk-default", "BOSSA_API_URL": "http://test"},
     ):
-        with patch("cli.files.BOSSA_API_URL", "http://test"):
+        with patch("cli.files.BOSSA_API_BASE", "http://test"):
             yield
 
 
@@ -296,7 +296,7 @@ def test_keys_create_with_save_calls_set_active_workspace() -> None:
     mock_client.__enter__ = MagicMock(return_value=mock_client)
     mock_client.__exit__ = MagicMock(return_value=None)
 
-    with patch("cli.keys.get_access_token", return_value="fake-token"):
+    with patch("cli.keys.require_auth", return_value="fake-token"):
         with patch("cli.keys.httpx.Client", return_value=mock_client):
             with patch("cli.keys.set_active_workspace") as mock_set:
                 result = runner.invoke(app, ["keys", "create", "my-app", "--save"])
