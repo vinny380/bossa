@@ -279,6 +279,100 @@ def test_files_ls_json_when_env_set(mock_bossa_url) -> None:
         pytest.fail("No JSON in output")
 
 
+@pytest.fixture
+def mock_usage_response():
+    """Mock GET /api/v1/usage response."""
+    return {
+        "storage_mb": 12.5,
+        "files_count": 42,
+        "requests_today": 156,
+        "tier": "free",
+        "limits": {"storage_mb": 100, "files": 500, "requests_per_day": 1000},
+    }
+
+
+def test_usage_outputs_data(mock_bossa_url, mock_usage_response) -> None:
+    """bossa usage outputs human-readable usage data."""
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = mock_usage_response
+    mock_client = MagicMock()
+    mock_client.get.return_value = mock_response
+    mock_client.__enter__ = MagicMock(return_value=mock_client)
+    mock_client.__exit__ = MagicMock(return_value=None)
+
+    with patch("cli.usage.BOSSA_API_BASE", "http://test"):
+        with patch("cli.usage.httpx.Client", return_value=mock_client):
+            result = runner.invoke(app, ["usage"])
+    assert result.exit_code == 0
+    assert "storage_mb" in result.output
+    assert "tier" in result.output or "free" in result.output
+    assert "%" in result.output or "12.5" in result.output
+    assert "reset" in result.output.lower()
+
+
+def test_usage_json_output(mock_bossa_url, mock_usage_response) -> None:
+    """bossa usage --json outputs valid JSON with computed fields."""
+    import json
+
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = mock_usage_response
+    mock_client = MagicMock()
+    mock_client.get.return_value = mock_response
+    mock_client.__enter__ = MagicMock(return_value=mock_client)
+    mock_client.__exit__ = MagicMock(return_value=None)
+
+    with patch("cli.usage.BOSSA_API_BASE", "http://test"):
+        with patch("cli.usage.httpx.Client", return_value=mock_client):
+            result = runner.invoke(app, ["usage", "--json"])
+    assert result.exit_code == 0
+    # Extract JSON (may be wrapped by terminal); find { ... }
+    start = result.output.find("{")
+    end = result.output.rfind("}")
+    assert start >= 0 and end > start, "No JSON in output"
+    data = json.loads(result.output[start : end + 1])
+    assert "storage_mb" in data
+    assert "files_count" in data
+    assert "requests_today" in data
+    assert "tier" in data
+    assert "limits" in data
+    assert "pct_storage" in data
+    assert "remaining_storage_mb" in data
+    assert "reset_utc" in data
+
+
+def test_usage_401_exits_2(mock_bossa_url) -> None:
+    """bossa usage returns exit 2 on 401."""
+    mock_response = MagicMock()
+    mock_response.status_code = 401
+    mock_response.text = "Unauthorized"
+    mock_client = MagicMock()
+    mock_client.get.return_value = mock_response
+    mock_client.__enter__ = MagicMock(return_value=mock_client)
+    mock_client.__exit__ = MagicMock(return_value=None)
+
+    with patch("cli.usage.BOSSA_API_BASE", "http://test"):
+        with patch("cli.usage.httpx.Client", return_value=mock_client):
+            result = runner.invoke(app, ["usage"])
+    assert result.exit_code == 2
+
+
+def test_usage_no_key_exits_1() -> None:
+    """bossa usage exits 1 when no API key configured."""
+    with patch.dict(
+        os.environ,
+        {"BOSSA_API_KEY": "", "BOSSA_WORKSPACE": "", "BOSSA_API_URL": "http://test"},
+        clear=False,
+    ):
+        with patch("cli.files.get_active_key", return_value=None):
+            with patch("cli.files.get_workspace_key", return_value=None):
+                with patch("cli.usage.BOSSA_API_BASE", "http://test"):
+                    result = runner.invoke(app, ["usage"])
+    assert result.exit_code == 1
+    assert "No API key" in result.output or "API key" in result.output
+
+
 def test_keys_create_with_save_calls_set_active_workspace() -> None:
     """bossa keys create my-app --save stores key in config."""
     mock_get_resp = MagicMock()

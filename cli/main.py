@@ -20,6 +20,7 @@ from cli.billing import billing_app
 from cli.files import files_app
 from cli.init_commands import init
 from cli.keys import keys_app
+from cli.usage import usage
 from cli.workspace_context import workspace_app
 from cli.workspaces import workspaces_app
 
@@ -53,6 +54,7 @@ app.command("signup")(signup)
 app.command("logout")(logout)
 app.command("whoami")(whoami)
 app.command("init")(init)
+app.command("usage")(usage)
 app.add_typer(billing_app, name="billing")
 app.add_typer(workspaces_app, name="workspaces")
 app.add_typer(workspace_app, name="workspace")

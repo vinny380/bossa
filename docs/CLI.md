@@ -98,6 +98,16 @@ Config is stored in `~/.config/bossa/config.json` (or `$XDG_CONFIG_HOME/bossa/co
 
 ---
 
+## Usage
+
+| Command | Description |
+|---------|-------------|
+| `bossa usage [--json] [--key sk-xxx]` | Show account usage and limits (storage, files, requests). Uses API key like `bossa files`. |
+
+Displays a techy panel with progress bars, percentages, remaining counts, and reset info. Use `--json` or `BOSSA_CLI_JSON=1` for machine-readable output with computed fields (`pct_storage`, `remaining_storage_mb`, `reset_utc`, etc.). Exit codes: 0 success, 1 error, 2 auth failure.
+
+---
+
 ## API Keys
 
 | Command | Description |
