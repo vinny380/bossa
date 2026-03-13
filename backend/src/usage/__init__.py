@@ -130,7 +130,7 @@ async def check_limits(
         if usage["requests_today"] >= limits["requests_per_day"]:
             raise LimitError(
                 f"{tier.capitalize()} tier limit: {limits['requests_per_day']:,} requests/day. "
-                "Upgrade at https://bossa.mintlify.app/pricing"
+                "Upgrade at https://docs.bossamemory.com/PRICING"
             )
         return
 
@@ -139,13 +139,13 @@ async def check_limits(
         if new_storage_mb > limits["storage_mb"]:
             raise LimitError(
                 f"{tier.capitalize()} tier limit: {limits['storage_mb']:,} MB storage. "
-                "Upgrade at https://bossa.mintlify.app/pricing"
+                "Upgrade at https://docs.bossamemory.com/PRICING"
             )
         new_files = usage["files_count"] + delta_files
         if new_files > limits["files"]:
             raise LimitError(
                 f"{tier.capitalize()} tier limit: {limits['files']:,} files. "
-                "Upgrade at https://bossa.mintlify.app/pricing"
+                "Upgrade at https://docs.bossamemory.com/PRICING"
             )
 
 

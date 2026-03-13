@@ -44,8 +44,8 @@ dependencies = [
 bossa = "cli.main:main"
 
 [project.urls]
-Homepage = "https://bossa.mintlify.app"
-Documentation = "https://bossa.mintlify.app"
+Homepage = "https://docs.bossamemory.com"
+Documentation = "https://docs.bossamemory.com"
 Repository = "https://github.com/vinny380/bossa"
 
 [tool.setuptools.packages.find]

@@ -19,7 +19,7 @@ Choose the plan that fits your needs. Start free, upgrade when ready.
     - 1 workspace
     - Community support
     
-    <Button href="https://bossa.mintlify.app/GETTING_STARTED">Get Started Free</Button>
+    <Button href="https://docs.bossamemory.com/GETTING_STARTED">Get Started Free</Button>
   </Card>
   
   <Card title="Pro" icon="rocket">

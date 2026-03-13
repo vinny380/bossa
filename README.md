@@ -7,20 +7,20 @@
     Give your AI a filesystem. <code>ls</code>, <code>grep</code>, <code>read</code>, <code>write</code>. That's it.
   </p>
   <p align="center">
-    <strong>📖 <a href="https://bossa.mintlify.app">Documentation → bossa.mintlify.app</a></strong>
+    <strong>📖 <a href="https://docs.bossamemory.com">Documentation → docs.bossamemory.com</a></strong>
   </p>
   <p align="center">
     <code>pip install bossa-memory</code> · No infrastructure · Sign up, get a key, ship.
   </p>
   <p align="center">
     <a href="#get-started">Get Started</a> &middot;
-    <a href="https://bossa.mintlify.app/PRICING">Pricing</a> &middot;
+    <a href="https://docs.bossamemory.com/PRICING">Pricing</a> &middot;
     <a href="#why-filesystem-over-rag">Why Filesystem?</a> &middot;
     <a href="#cli">CLI</a> &middot;
     <a href="#mcp-tools">MCP</a> &middot;
     <a href="#rest-api">REST API</a> &middot;
     <a href="#examples">Examples</a> &middot;
-    <a href="https://bossa.mintlify.app">Docs</a>
+    <a href="https://docs.bossamemory.com">Docs</a>
   </p>
 </p>
 
@@ -46,7 +46,7 @@ You've tried RAG. Embeddings. Chunking. Tuning. It's a rabbit hole—and your ag
 | Debuggable with `ls`, `cat` | Black box retrieval |
 | No embedding drift | Constant re-indexing |
 
-**For 80% of agent use cases, filesystems just work.** [Why we chose this →](https://bossa.mintlify.app/WHY_FILESYSTEM)
+**For 80% of agent use cases, filesystems just work.** [Why we chose this →](https://docs.bossamemory.com/WHY_FILESYSTEM)
 
 ---
 
@@ -64,12 +64,12 @@ Bossa is the storage layer for that. Your agent uses `ls` and `grep` to *discove
 
 | Step | Action |
 |------|--------|
-| 1 | [Sign up](https://bossa.mintlify.app/GETTING_STARTED#2-sign-up--log-in) via the CLI |
-| 2 | [Create a workspace & API key](https://bossa.mintlify.app/GETTING_STARTED#3-create-a-workspace--api-key) |
-| 3 | [Connect your agent](https://bossa.mintlify.app/GETTING_STARTED#4-make-your-first-request) via MCP or REST |
+| 1 | [Sign up](https://docs.bossamemory.com/GETTING_STARTED#2-sign-up--log-in) via the CLI |
+| 2 | [Create a workspace & API key](https://docs.bossamemory.com/GETTING_STARTED#3-create-a-workspace--api-key) |
+| 3 | [Connect your agent](https://docs.bossamemory.com/GETTING_STARTED#4-make-your-first-request) via MCP or REST |
 
-**Base URL:** `https://filesystem-fawn.vercel.app`  
-**MCP endpoint:** `https://filesystem-fawn.vercel.app/mcp`
+**Base URL:** `https://bossamemory.com`  
+**MCP endpoint:** `https://bossamemory.com/mcp`
 
 ```bash
 pip install bossa-memory
@@ -98,7 +98,7 @@ bossa files ls /
 
 **Context engineering** — Discover what's relevant with ls/grep, pull only what you need. Fewer tokens.
 
-[See more examples →](https://bossa.mintlify.app/USE_CASES)
+[See more examples →](https://docs.bossamemory.com/USE_CASES)
 
 ---
 
@@ -113,13 +113,13 @@ bossa files grep "project alpha"   # Search
 echo "content" | bossa files write /note.txt
 ```
 
-**Agent mode:** `BOSSA_CLI_JSON=1` for machine-readable output. [Full CLI reference →](https://bossa.mintlify.app/CLI)
+**Agent mode:** `BOSSA_CLI_JSON=1` for machine-readable output. [Full CLI reference →](https://docs.bossamemory.com/CLI)
 
 ---
 
 ## MCP Tools
 
-Connect to `https://filesystem-fawn.vercel.app/mcp`. Pass `Authorization: Bearer YOUR_API_KEY` or `X-API-Key: YOUR_API_KEY`.
+Connect to `https://bossamemory.com/mcp`. Pass `Authorization: Bearer YOUR_API_KEY` or `X-API-Key: YOUR_API_KEY`.
 
 | Tool | What it does |
 |------|--------------|
@@ -131,13 +131,13 @@ Connect to `https://filesystem-fawn.vercel.app/mcp`. Pass `Authorization: Bearer
 | `glob_search` | Find by pattern |
 | `delete_file` | Delete a file |
 
-[MCP setup for Claude, Cursor, LangChain →](https://bossa.mintlify.app/MCP)
+[MCP setup for Claude, Cursor, LangChain →](https://docs.bossamemory.com/MCP)
 
 ---
 
 ## REST API
 
-Base URL: `https://filesystem-fawn.vercel.app`
+Base URL: `https://bossamemory.com`
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -149,7 +149,7 @@ Base URL: `https://filesystem-fawn.vercel.app`
 | `PATCH` | `/api/v1/files` | Edit in place |
 | `DELETE` | `/api/v1/files?path=...` | Delete |
 
-[Full REST reference →](https://bossa.mintlify.app/REST_API)
+[Full REST reference →](https://docs.bossamemory.com/REST_API)
 
 ---
 
@@ -172,7 +172,7 @@ from langchain_mcp_adapters.client import MultiServerMCPClient
 
 client = MultiServerMCPClient({
     "bossa": {
-        "url": "https://filesystem-fawn.vercel.app/mcp",
+        "url": "https://bossamemory.com/mcp",
         "transport": "streamable_http",
         "headers": {"X-API-Key": "YOUR_API_KEY"}
     }
@@ -187,7 +187,7 @@ tools = await client.get_tools()
 
 ## Self-Hosting
 
-Run Bossa on your own infrastructure. [Self-hosting guide →](https://bossa.mintlify.app/SELF_HOSTING)
+Run Bossa on your own infrastructure. [Self-hosting guide →](https://docs.bossamemory.com/SELF_HOSTING)
 
 ---
 
@@ -195,15 +195,15 @@ Run Bossa on your own infrastructure. [Self-hosting guide →](https://bossa.min
 
 | Doc | Description |
 |-----|-------------|
-| [Getting Started](https://bossa.mintlify.app/GETTING_STARTED) | Sign up, API key, first request |
-| [Pricing & Limits](https://bossa.mintlify.app/PRICING) | Account tiers, usage limits |
-| [Why Filesystem?](https://bossa.mintlify.app/WHY_FILESYSTEM) | Filesystem vs RAG |
-| [Dynamic Context Discovery](https://bossa.mintlify.app/DYNAMIC_CONTEXT_DISCOVERY) | How Bossa fits Cursor & LangChain |
-| [CLI Reference](https://bossa.mintlify.app/CLI) | Full command reference |
-| [MCP Integration](https://bossa.mintlify.app/MCP) | Claude, Cursor, LangChain |
-| [REST API](https://bossa.mintlify.app/REST_API) | Full API reference |
-| [Agent Integration](https://bossa.mintlify.app/AGENT_INTEGRATION) | Examples, tool patterns |
-| [Self-Hosting](https://bossa.mintlify.app/SELF_HOSTING) | Run on your infrastructure |
+| [Getting Started](https://docs.bossamemory.com/GETTING_STARTED) | Sign up, API key, first request |
+| [Pricing & Limits](https://docs.bossamemory.com/PRICING) | Account tiers, usage limits |
+| [Why Filesystem?](https://docs.bossamemory.com/WHY_FILESYSTEM) | Filesystem vs RAG |
+| [Dynamic Context Discovery](https://docs.bossamemory.com/DYNAMIC_CONTEXT_DISCOVERY) | How Bossa fits Cursor & LangChain |
+| [CLI Reference](https://docs.bossamemory.com/CLI) | Full command reference |
+| [MCP Integration](https://docs.bossamemory.com/MCP) | Claude, Cursor, LangChain |
+| [REST API](https://docs.bossamemory.com/REST_API) | Full API reference |
+| [Agent Integration](https://docs.bossamemory.com/AGENT_INTEGRATION) | Examples, tool patterns |
+| [Self-Hosting](https://docs.bossamemory.com/SELF_HOSTING) | Run on your infrastructure |
 
 ---
 

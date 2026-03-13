@@ -7,7 +7,7 @@ description: "Connect the Bossa documentation to Cursor, VS Code, Claude, or Cla
 
 Give your AI assistant (Cursor, VS Code, Claude, Claude Code) direct access to the Bossa documentation. When you ask questions about Bossa, the AI can search our docs in real time instead of relying on web search.
 
-**MCP server URL:** `https://bossa.mintlify.app/mcp`
+**MCP server URL:** `https://docs.bossamemory.com/mcp`
 
 ---
 
@@ -33,7 +33,7 @@ Select the menu and choose your IDE for a one-click setup.
 {
   "mcpServers": {
     "Bossa Docs": {
-      "url": "https://bossa.mintlify.app/mcp"
+      "url": "https://docs.bossamemory.com/mcp"
     }
   }
 }
@@ -55,7 +55,7 @@ Select the menu and choose your IDE for a one-click setup.
   "servers": {
     "Bossa Docs": {
       "type": "http",
-      "url": "https://bossa.mintlify.app/mcp"
+      "url": "https://docs.bossamemory.com/mcp"
     }
   }
 }
@@ -73,7 +73,7 @@ See the [VS Code MCP documentation](https://code.visualstudio.com/docs/copilot/c
 2. Select **Add custom connector**
 3. Add:
    - **Name:** `Bossa Docs`
-   - **URL:** `https://bossa.mintlify.app/mcp`
+   - **URL:** `https://docs.bossamemory.com/mcp`
 4. Select **Add**
 
 When you chat with Claude, use the attachments button (plus icon) and select the Bossa Docs connector to give Claude access to our documentation.
@@ -85,7 +85,7 @@ When you chat with Claude, use the attachments button (plus icon) and select the
 Run this command to add the Bossa docs MCP server:
 
 ```bash
-claude mcp add --transport http "Bossa Docs" https://bossa.mintlify.app/mcp
+claude mcp add --transport http "Bossa Docs" https://docs.bossamemory.com/mcp
 ```
 
 Verify the connection:

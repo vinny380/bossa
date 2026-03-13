@@ -7,7 +7,7 @@ description: "Connect Claude, Cursor, LangChain, or any MCP client to Bossa."
 
 Bossa exposes a virtual filesystem via **MCP** (Model Context Protocol). Connect Claude Desktop, Cursor, LangChain, or any MCP-compatible client to use `ls`, `read_file`, `write_file`, `grep`, `glob_search`, `edit_file`, and `delete_file`.
 
-**MCP endpoint:** `https://filesystem-fawn.vercel.app/mcp`
+**MCP endpoint:** `https://bossamemory.com/mcp`
 
 **Alternative:** If your agent harness runs tools as subprocesses (CLI-based), use the Bossa CLI instead: `bossa files ls`, `read`, `write`, `grep`, `glob`, `edit`, `delete` with `--json` or `BOSSA_CLI_JSON=1`. See [CLI Reference](CLI).
 
@@ -53,7 +53,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS)
 {
   "mcpServers": {
     "bossa": {
-      "url": "https://filesystem-fawn.vercel.app/mcp",
+      "url": "https://bossamemory.com/mcp",
       "transport": "streamable_http",
       "headers": {
         "Authorization": "Bearer YOUR_API_KEY",
@@ -70,7 +70,7 @@ Replace `YOUR_API_KEY` with your workspace API key. Restart Claude Desktop.
 
 Add Bossa as an MCP server in Cursor settings. Use:
 
-- **URL:** `https://filesystem-fawn.vercel.app/mcp`
+- **URL:** `https://bossamemory.com/mcp`
 - **Transport:** Streamable HTTP
 - **Headers:** `Authorization: Bearer YOUR_API_KEY` or `X-API-Key: YOUR_API_KEY`
 
@@ -81,7 +81,7 @@ from langchain_mcp_adapters.client import MultiServerMCPClient
 
 client = MultiServerMCPClient({
     "bossa": {
-        "url": "https://filesystem-fawn.vercel.app/mcp",
+        "url": "https://bossamemory.com/mcp",
         "transport": "streamable_http",
         "headers": {
             "X-API-Key": "YOUR_API_KEY",

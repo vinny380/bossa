@@ -7,8 +7,8 @@ description: "Build AI agents with Bossa. CLI and MCP examples, tool usage patte
 
 This guide is for **AI agents** and **developers** building agents that need long-term memory. Bossa gives your agents a persistent filesystem to store and retrieve context across sessions—as simple as files, as powerful as Postgres. Use the managed service so your agents get persistent, searchable storage without running infrastructure.
 
-**Base URL:** `https://filesystem-fawn.vercel.app`  
-**MCP endpoint:** `https://filesystem-fawn.vercel.app/mcp`
+**Base URL:** `https://bossamemory.com`  
+**MCP endpoint:** `https://bossamemory.com/mcp`
 
 ---
 
@@ -20,7 +20,7 @@ This guide is for **AI agents** and **developers** building agents that need lon
 
 3. **Choose your interface:**
    - **CLI** — If your agent runs tools as subprocesses (CLI-based harnesses, beads), use `bossa files ls`, `read`, `write`, `grep`, `glob`, `edit`, `delete`. Set `BOSSA_CLI_JSON=1` for JSON output.
-   - **MCP** — If your harness supports MCP (LangChain, Claude, Cursor), connect to `https://filesystem-fawn.vercel.app/mcp` with headers `Authorization: Bearer YOUR_API_KEY` or `X-API-Key: YOUR_API_KEY`.
+   - **MCP** — If your harness supports MCP (LangChain, Claude, Cursor), connect to `https://bossamemory.com/mcp` with headers `Authorization: Bearer YOUR_API_KEY` or `X-API-Key: YOUR_API_KEY`.
 
 4. **Use the tools** — Both interfaces expose the same operations: `ls`, `read`/`read_file`, `write`/`write_file`, `grep`, `glob`/`glob_search`, `edit`/`edit_file`, `delete`/`delete_file`.
 
@@ -54,7 +54,7 @@ from langchain.agents import create_agent
 from langchain_core.messages import HumanMessage
 from langchain_mcp_adapters.client import MultiServerMCPClient
 
-BOSSA_URL = "https://filesystem-fawn.vercel.app/mcp"
+BOSSA_URL = "https://bossamemory.com/mcp"
 BOSSA_API_KEY = os.environ["BOSSA_API_KEY"]  # Your workspace key
 
 async def main():
@@ -146,7 +146,7 @@ bossa files edit /config.json --old '"debug": false' --new '"debug": true'
 
 | Variable | Description |
 |----------|-------------|
-| `BOSSA_API_URL` | `https://filesystem-fawn.vercel.app` (managed service) |
+| `BOSSA_API_URL` | `https://bossamemory.com` (managed service) |
 | `BOSSA_API_KEY` | Your workspace API key |
 | `OPENAI_API_KEY` | For LangChain/OpenAI agents |
 

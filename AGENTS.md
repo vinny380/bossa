@@ -96,7 +96,7 @@ Bossa gives your agent a persistent filesystem. Use `pip install bossa-memory` a
 - `BOSSA_API_KEY` — Set in env, or use `bossa workspace use <name> --key sk-xxx` to store it.
 ### MCP
 
-**Endpoint:** `https://filesystem-fawn.vercel.app/mcp`
+**Endpoint:** `https://bossamemory.com/mcp`
 
 **Auth:** Pass `Authorization: Bearer YOUR_API_KEY` or `X-API-Key: YOUR_API_KEY` in headers.
 

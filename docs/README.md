@@ -1,6 +1,6 @@
 # Bossa Documentation
 
-**📖 Full documentation:** [bossa.mintlify.app](https://bossa.mintlify.app)
+**📖 Full documentation:** [docs.bossamemory.com](https://docs.bossamemory.com)
 
 | Doc | Description |
 |-----|-------------|

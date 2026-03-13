@@ -7,7 +7,7 @@ description: "Full endpoint documentation for all filesystem operations."
 
 Bossa exposes a REST API for all filesystem operations. Use it when MCP isn't available or when building custom integrations.
 
-**Base URL:** `https://filesystem-fawn.vercel.app/api/v1`
+**Base URL:** `https://bossamemory.com/api/v1`
 
 **Authentication:** `Authorization: Bearer YOUR_API_KEY` or `X-API-Key: YOUR_API_KEY`
 
@@ -322,7 +322,7 @@ No authentication required. Returns `200` with `{"status": "ok"}`.
 | Code | Meaning |
 |------|---------|
 | 401 | Missing or invalid API key |
-| 402 | Usage limit exceeded (storage, files, requests, or workspaces). [Upgrade](https://bossa.mintlify.app/pricing) for higher limits. |
+| 402 | Usage limit exceeded (storage, files, requests, or workspaces). [Upgrade](https://docs.bossamemory.com/pricing) for higher limits. |
 | 404 | File or path not found |
 | 400 | Invalid request (e.g. empty body, validation error) |
 | 413 | Batch size exceeds 100 files |

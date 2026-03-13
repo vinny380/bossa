@@ -46,7 +46,7 @@ async def create_workspace(
             )
             if row and row["cnt"] >= 1:
                 raise LimitError(
-                    "Free tier limit: 1 workspace. Upgrade at https://bossa.mintlify.app/pricing"
+                    "Free tier limit: 1 workspace. Upgrade at https://docs.bossamemory.com/PRICING"
                 )
     try:
         row = await fetch_one(

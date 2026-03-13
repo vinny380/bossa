@@ -9,7 +9,7 @@ Give your AI agent persistent memory so it remembers conversations, learns prefe
 
 No database setup. No vector embeddings. Just simple files that work.
 
-**Base URL:** `https://filesystem-fawn.vercel.app`
+**Base URL:** `https://bossamemory.com`
 
 ---
 
@@ -115,18 +115,18 @@ Both expose the same filesystem operations. Choose based on how your agent execu
 ```bash
 # List root directory
 curl -H "Authorization: Bearer YOUR_API_KEY" \
-  "https://filesystem-fawn.vercel.app/api/v1/files/list?path=/"
+  "https://bossamemory.com/api/v1/files/list?path=/"
 
 # Create a file
 curl -X POST \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"path": "/hello.txt", "content": "Hello from Bossa!"}' \
-  "https://filesystem-fawn.vercel.app/api/v1/files"
+  "https://bossamemory.com/api/v1/files"
 
 # Read the file
 curl -H "Authorization: Bearer YOUR_API_KEY" \
-  "https://filesystem-fawn.vercel.app/api/v1/files?path=/hello.txt"
+  "https://bossamemory.com/api/v1/files?path=/hello.txt"
 ```
 
 ### CLI (agent subprocess)
@@ -150,7 +150,7 @@ See [CLI Reference](CLI) for the full command reference.
 Connect any MCP client (Claude Desktop, Cursor, LangChain) to:
 
 ```
-https://filesystem-fawn.vercel.app/mcp
+https://bossamemory.com/mcp
 ```
 
 Pass your API key in headers:
@@ -196,7 +196,7 @@ When your agent harness runs tools as subprocesses (e.g. CLI-based agents), use 
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `BOSSA_API_URL` | No | Default: `https://filesystem-fawn.vercel.app` (managed service). Override for self-hosted. |
+| `BOSSA_API_URL` | No | Default: `https://bossamemory.com` (managed service). Override for self-hosted. |
 | `BOSSA_API_KEY` | Yes (API calls) | Your workspace API key. Or use `bossa workspace use <name> --key <key>`. |
 | `BOSSA_WORKSPACE` | No | Override active workspace by name (lookup key from config). |
 | `BOSSA_CLI_JSON` | No | Set to `1` for agent mode — all CLI commands return JSON |

@@ -18,7 +18,7 @@ def _get_supabase_config() -> tuple[str, str]:
     if "localhost" in BOSSA_API_URL:
         console.print(
             "[red]Set SUPABASE_URL and SUPABASE_ANON_KEY for self-hosted. "
-            "Or use BOSSA_API_URL=https://filesystem-fawn.vercel.app for the managed service.[/red]"
+            "Or use BOSSA_API_URL=https://bossamemory.com for the managed service.[/red]"
         )
         raise typer.Exit(1)
     try:

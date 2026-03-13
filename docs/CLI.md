@@ -275,7 +275,7 @@ bossa files upload <local_path> [--target /prefix] [--include-hidden]
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `BOSSA_API_URL` | `https://filesystem-fawn.vercel.app` | API base URL |
+| `BOSSA_API_URL` | `https://bossamemory.com` | API base URL |
 | `BOSSA_API_KEY` | — | Workspace API key (or use `bossa workspace use`) |
 | `BOSSA_WORKSPACE` | — | Override active workspace by name |
 | `BOSSA_CLI_JSON` | — | Set to `1` for JSON output from all commands |

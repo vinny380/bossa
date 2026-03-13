@@ -29,8 +29,8 @@ class Settings(BaseSettings):
     stripe_webhook_secret: str = ""
     stripe_price_id_monthly: str = ""
     stripe_price_id_yearly: str = ""
-    bossa_billing_success_url: str = "https://bossa.mintlify.app/GETTING_STARTED"
-    bossa_billing_cancel_url: str = "https://bossa.mintlify.app/PRICING"
+    bossa_billing_success_url: str = "https://docs.bossamemory.com/GETTING_STARTED"
+    bossa_billing_cancel_url: str = "https://docs.bossamemory.com/PRICING"
 
     @property
     def owner_user_ids_list(self) -> list[str]:
