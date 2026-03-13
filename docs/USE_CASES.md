@@ -1,117 +1,125 @@
 ---
 title: "Use Cases"
-description: "What you can build with Bossa: personal assistants, support agents, research tools."
+description: "What you can build with Bossa: coding assistants, multi-agent teams, context engineering, dynamic context discovery."
 ---
 
 # What Can You Build?
 
-Bossa gives your agents a persistent filesystem. Here are concrete examples of what that enables.
+Bossa gives your agents a persistent filesystem. Here are concrete examples aligned with modern agent patterns: coding assistants, multi-agent collaboration, and context engineering.
 
 ---
 
-## 1. Personal AI Assistant
+## 1. Coding Assistant
 
-Your agent remembers preferences, past conversations, and project context across sessions.
+Your coding agent remembers project context, tech stack, and conventions across sessions. No more re-explaining your codebase.
 
 ### File Structure
 
 ```
-/memory
+/projects
+  /my-app
+    tech-stack.json
+    conventions.md
+    architecture.md
+    decisions/
+```
+
+### Example: Store and Retrieve Project Context
+
+```bash
+# Session 1: Capture project context
+bossa files write /projects/my-app/tech-stack.json '{"framework": "FastAPI", "db": "Postgres", "style": "async"}'
+bossa files write /projects/my-app/conventions.md '# Code style: type hints, pydantic models, async I/O'
+
+# Session 2: Agent pulls context on demand
+bossa files read /projects/my-app/conventions.md
+# Agent: "I'll follow your FastAPI + async patterns."
+```
+
+### Example: Search Across Decisions
+
+```bash
+bossa files grep "auth" --path /projects/my-app/decisions
+```
+
+---
+
+## 2. Multi-Agent Team
+
+Multiple agents share one workspace. Agent A writes context; Agent B reads it. Handoffs, shared state, no duplicate work.
+
+### File Structure
+
+```
+/agents
+  /planner
+    current-task.md
+    next-steps.md
+  /coder
+    implementation-notes.md
+  /reviewer
+    feedback.md
+```
+
+### Example: Agent Handoff
+
+```bash
+# Planner agent writes task for coder
+bossa files write /agents/planner/current-task.md 'Implement auth middleware. Use JWT. See /agents/planner/next-steps.md'
+
+# Coder agent reads and executes
+bossa files read /agents/planner/current-task.md
+bossa files read /agents/planner/next-steps.md
+# Coder: implements, then writes notes for reviewer
+bossa files write /agents/coder/implementation-notes.md 'Auth done. Edge cases: token expiry, refresh flow.'
+```
+
+### Example: Shared Discovery
+
+```bash
+bossa files ls /agents
+bossa files grep "auth" --path /agents
+```
+
+---
+
+## 3. Context Engineering (Dynamic Context Discovery)
+
+Instead of loading everything into context, agents discover what's relevant with `ls` and `grep`, then pull only what they need. Fewer tokens, better answers. Same pattern Cursor and LangChain use for dynamic context.
+
+### File Structure
+
+```
+/context
   /user
     preferences.json
-    conversation-history/
   /projects
-    /project-alpha
-      context.md
-      decisions.md
+    /alpha
+      summary.md
+      decisions/
+    /beta
+      summary.md
 ```
 
-### Example: Store and Retrieve Preferences
+### Example: Discover Then Read
 
 ```bash
-# Session 1: Learn user preferences
-bossa files write /user/preferences.json '{"theme": "dark", "timezone": "PST", "name": "Alice"}'
+# Agent discovers what exists
+bossa files ls /context/projects
 
-# Session 2: Agent retrieves in future sessions
-bossa files read /user/preferences.json
-# Agent: "I remember you prefer dark mode, Alice!"
+# Agent searches for relevant context
+bossa files grep "database" --path /context
+
+# Agent reads only what it needs
+bossa files read /context/projects/alpha/summary.md
 ```
 
-### Example: Search Past Conversations
+### Example: Avoid Token Bloat
 
 ```bash
-bossa files grep "project alpha" --path /memory
-```
-
----
-
-## 2. Customer Support Agent
-
-Never ask a customer the same question twice. Store account info, ticket history, and interaction context.
-
-### File Structure
-
-```
-/customers
-  /acme-corp
-    account-info.json
-    support-tickets/
-    interaction-history.md
-  /globex-inc
-    account-info.json
-    support-tickets/
-```
-
-### Example: Store Account Context
-
-```bash
-bossa files write /customers/acme-corp/account-info.json '{
-  "company": "Acme Corp",
-  "plan": "enterprise",
-  "contact": "support@acme.com",
-  "notes": "Prefers email over chat"
-}'
-```
-
-### Example: Search Across All Customers
-
-```bash
-bossa files grep "enterprise" --path /customers
-```
-
----
-
-## 3. Research Agent
-
-Build up a knowledge base over weeks of research. Organize sources, findings, and notes by topic.
-
-### File Structure
-
-```
-/research
-  /topic-analysis
-    sources.md
-    findings.json
-    notes/
-  /ai-trends-2026
-    sources.md
-    findings.json
-```
-
-### Example: Store Research Findings
-
-```bash
-bossa files write /research/ai-trends-2026/findings.json '{
-  "key_trends": ["multimodal", "agentic", "smaller models"],
-  "sources": ["paper1", "paper2"],
-  "last_updated": "2026-03-01"
-}'
-```
-
-### Example: Search Across All Research
-
-```bash
-bossa files grep "LLM" --path /research
+# Don't load everything—grep first, read second
+bossa files grep "migration" --path /context/projects/alpha
+# Then: bossa files read /context/projects/alpha/decisions/migration-2026-03.md
 ```
 
 ---
@@ -127,6 +135,61 @@ bossa files write /learned/facts.json '{"user_likes": "vim", "preferred_lang": "
 # Session 2: Remember it
 bossa files read /learned/facts.json
 # Agent: "I remember you like vim!"
+```
+
+---
+
+## 5. Research Agent
+
+Build up a knowledge base over weeks. Organize sources, findings, and notes by topic. Search across everything.
+
+### File Structure
+
+```
+/research
+  /ai-trends-2026
+    sources.md
+    findings.json
+  /context-engineering
+    papers.md
+    notes/
+```
+
+### Example: Store and Search Research
+
+```bash
+bossa files write /research/context-engineering/findings.json '{
+  "key_concepts": ["dynamic context", "pull-on-demand", "ls/grep pattern"],
+  "sources": ["cursor-blog", "langchain-blog"]
+}'
+bossa files grep "dynamic context" --path /research
+```
+
+---
+
+## 6. Customer Support Agent
+
+Never ask a customer the same question twice. Store account info, ticket history, and interaction context.
+
+### File Structure
+
+```
+/customers
+  /acme-corp
+    account-info.json
+    support-tickets/
+    interaction-history.md
+```
+
+### Example: Store and Search Customer Context
+
+```bash
+bossa files write /customers/acme-corp/account-info.json '{
+  "company": "Acme Corp",
+  "plan": "enterprise",
+  "notes": "Prefers email over chat"
+}'
+bossa files grep "enterprise" --path /customers
 ```
 
 ---

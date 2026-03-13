@@ -11,7 +11,7 @@ Choose the plan that fits your needs. Start free, upgrade when ready.
   <Card title="Free" icon="gift">
     Perfect for testing and personal projects
     
-    **$0/month forever**
+    $0/month forever
     
     - 100 MB storage
     - 500 files
@@ -25,7 +25,9 @@ Choose the plan that fits your needs. Start free, upgrade when ready.
   <Card title="Pro" icon="rocket">
     For production agents and multiple projects
     
-    **$29/month**
+    $29.99/month
+    
+    $300/year — Save 17%
     
     - 10 GB storage (100x more)
     - 200,000 files (400x more)

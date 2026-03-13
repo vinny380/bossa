@@ -3,8 +3,6 @@ title: "Dynamic Context Discovery"
 description: "How Bossa fits the context-engineering pattern used by Cursor and LangChain."
 ---
 
-# Dynamic Context Discovery
-
 Modern agent harnesses are shifting from **static context** (everything loaded up front) to **dynamic context discovery**—letting the agent pull relevant context on demand. As [Cursor puts it](https://cursor.com/blog/dynamic-context-discovery):
 
 > As models have become better as agents, we've found success by providing fewer details up front, making it easier for the agent to pull relevant context on its own.

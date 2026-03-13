@@ -29,8 +29,16 @@
         "href": "/PRICING"
       },
       {
+        "label": "Use Cases",
+        "href": "/USE_CASES"
+      },
+      {
         "label": "API",
         "href": "/REST_API"
+      },
+      {
+        "type": "github",
+        "href": "https://github.com/vinny380/bossa"
       }
     ],
     "primary": {
@@ -64,17 +72,22 @@
       {
         "group": "Getting Started",
         "icon": "rocket",
-        "pages": ["index", "GETTING_STARTED", "PRICING", "WHY_FILESYSTEM", "DYNAMIC_CONTEXT_DISCOVERY", "ADD_DOCS_AS_MCP"]
+        "pages": ["index", "GETTING_STARTED", "PRICING", "USE_CASES"]
+      },
+      {
+        "group": "Concepts",
+        "icon": "lightbulb",
+        "pages": ["WHY_FILESYSTEM", "DYNAMIC_CONTEXT_DISCOVERY"]
+      },
+      {
+        "group": "Integration",
+        "icon": "puzzle",
+        "pages": ["AGENT_INTEGRATION", "ADD_DOCS_AS_MCP"]
       },
       {
         "group": "Reference",
         "icon": "book-open",
         "pages": ["CLI", "REST_API", "MCP"]
-      },
-      {
-        "group": "Integration",
-        "icon": "puzzle",
-        "pages": ["AGENT_INTEGRATION", "USE_CASES"]
       },
       {
         "group": "Deployment",

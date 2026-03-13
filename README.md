@@ -14,6 +14,7 @@
   </p>
   <p align="center">
     <a href="#get-started">Get Started</a> &middot;
+    <a href="https://bossa.mintlify.app/PRICING">Pricing</a> &middot;
     <a href="#why-filesystem-over-rag">Why Filesystem?</a> &middot;
     <a href="#cli">CLI</a> &middot;
     <a href="#mcp-tools">MCP</a> &middot;
@@ -91,11 +92,11 @@ bossa files ls /
 
 ## What can you build?
 
-**Personal AI assistant** — Preferences, conversation history, project context. Never ask twice.
+**Coding assistant** — Project context, tech stack, conventions. Your agent remembers how you structure code.
 
-**Customer support agent** — Account info, tickets, interaction history. One source of truth.
+**Multi-agent team** — Multiple agents share one workspace. Handoffs, shared state, no duplicate work.
 
-**Research agent** — Sources, findings, notes. Build knowledge over weeks.
+**Context engineering** — Discover what's relevant with ls/grep, pull only what you need. Fewer tokens.
 
 [See more examples →](https://bossa.mintlify.app/USE_CASES)
 
